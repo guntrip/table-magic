@@ -1,4 +1,4 @@
-var tab = "md", header_alignment=[], array_storage="";
+var tab = "csv", header_alignment=[], array_storage="";
 
 var example_csv='Feature, Description, Example\n'+
                 'Renders markdown, Uses the showdown library to render contents of table cells for you, **Just** *like* ``this``\n'+
