@@ -19,11 +19,9 @@ function layout(editing) {
 
 }
 
-function test() {
-
-md2array($("textarea").val());
-
-}
+$(window).load(function() {
+  layout(true);
+});
 
 function changeTab(newTab) {
 
