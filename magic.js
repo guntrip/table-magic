@@ -1,4 +1,4 @@
-var tab = "csv", header_alignment=[], array_storage="";
+var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0;
 
 var example_csv='Feature, Description, Example\n'+
                 'Renders markdown, Uses the showdown library to render contents of table cells for you, **Just** *like* ``this``\n'+
@@ -65,6 +65,72 @@ function changeTab(newTab) {
 
         }
 
+        // csv > form
+        if ( (tab==="csv") && (newTab==="form") ) {
+
+            layout(false);
+
+            // Convert md to array
+            var array = csv2array(input);
+
+            // And to html
+            var html = array2form(array);
+
+            array_storge = array; // Store the array
+
+            $('.preview').html(html);
+
+        }
+
+        // md > form
+        if ( (tab==="md") && (newTab==="form") ) {
+
+            layout(false);
+
+            // Convert md to array
+            var array = md2array(input);
+
+            // And to html
+            var html = array2form(array);
+
+            $('.preview').html(html);
+
+        }
+
+        // form > md
+        if ( (tab==="form") && (newTab==="md") ) {
+
+           // Convert form into array
+           var array = form2array();
+
+           // Convet array into md
+           var md = array2md(array);
+
+           // Update design
+           layout(true);
+
+           // Pop into text area
+           $('textarea').val(md);
+
+        }
+
+        // form > csv
+        if ( (tab==="form") && (newTab==="csv") ) {
+
+           // Convert form into array
+           var array = form2array();
+
+           // Convet array into md
+           var csv = array2csv(array);
+
+           // Update design
+           layout(true);
+
+           // Pop into text area
+           $('textarea').val(csv);
+
+        }
+
         // csv > preview
         if ( (tab==="csv") && (newTab==="preview") ) {
 
@@ -99,6 +165,24 @@ function changeTab(newTab) {
 
         }
 
+        // form > preview
+        if ( (tab==="form") && (newTab==="preview") ) {
+
+            // Convert form to array
+            var array = form2array();
+
+            // And to html
+            var html = array2html(array);
+
+            // Update design late
+            layout(false);
+
+            array_storge = array; // Store the array
+
+            $('.preview').html(html);
+
+        }
+
         // preview > csv
         if ( (tab==="preview") && (newTab==="csv") ) {
 
@@ -117,14 +201,24 @@ function changeTab(newTab) {
 
            layout(true);
 
-           // Convert stored array into csv
+           // Convert stored array into md
            var md = array2md(array_storge);
 
            // Pop into text area
            $('textarea').val(md);
-
         }
 
+        // preview > form
+        if ( (tab==="preview") && (newTab==="form") ) {
+
+            layout(false);
+
+            // Convert array storage to form
+            var html = array2form(array_storge);
+
+            $('.preview').html(html);
+
+        }
 
 
       // Update classes
@@ -308,6 +402,33 @@ function md2array(md) {
 
 }
 
+function form2array() {
+
+  var array = [];
+
+  for (var r = 0; r < form_rows; r++) {
+
+    var currentrow=[];
+
+    for (var c = 0; c < form_cols; c++) {
+
+      // Gather item
+      var item = $('#form-'+r+'-'+c).val();
+
+      // Save to row
+      currentrow[c]=item;
+
+    }
+
+    // Save to array
+    array[r]=currentrow;
+
+  }
+
+  return array;
+
+}
+
 function array2csv(array) {
 
   var csv = "";
@@ -417,6 +538,47 @@ function array2html(array) {
       }
 
   }
+
+  html += "</tbody></table>";
+
+  return html;
+
+}
+
+function array2form(array) {
+
+  var html = "<table><thead>";
+
+  for (var r = 0; r < array.length; r++) {
+
+      var row = array[r];
+
+      if (r===0) { fontweight="bold;" } else { fontweight="normal"; }
+      html += "<tr style=\"font-weight:"+fontweight+"\">";
+
+      for (var c = 0; c < row.length; c++) {
+
+        var item = row[c];
+        item = item.replace(/"/g, '&quot;'); // replace "s
+
+        html += "<td>";
+        html += "<input id='form-"+r+"-"+c+"' value=\"";
+        html += item;
+        html += "\"></td>";
+
+      }
+
+      html += "</tr>";
+
+      if (r===0) {
+        html += "</thead><tbody>";
+      }
+
+      form_cols=row.length;
+
+  }
+
+  form_rows=array.length;
 
   html += "</tbody></table>";
 
