@@ -7,10 +7,6 @@ var example_csv='Feature, Description, Example\n'+
                 'Preserves alignment, Between all views, Switch to CSV and back\n'+
                 'Hasn\\\'t caught fire yet, So far, Hurrah';
 
-$(window).load(function() {
-  layout(true);
-});
-
 function layout(editing) {
 
   if (editing) {
@@ -443,7 +439,7 @@ function fill_example() {
     // Simulate switching to preview.
     layout(false);
 
-    // Convert md to array
+    // Convert example csv to array
     var array = csv2array(example_csv);
     header_alignment=['l','l','r'];
 
