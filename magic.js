@@ -539,6 +539,11 @@ function array2html(array) {
 
   html += "</tbody></table>";
 
+  if (array.length===0) { html += "<div class=\"flash flash-warn flash-with-icon\">"+
+                                  "<span class=\"octicon octicon-alert\"></span>"+
+                                  "Nothing to preview.</div>"
+                        }
+
   return html;
 
 }
@@ -579,6 +584,11 @@ function array2form(array) {
   form_rows=array.length;
 
   html += "</tbody></table>";
+
+  if (array.length===0) { html += "<div class=\"flash flash-warn flash-with-icon\">"+
+                                  "<span class=\"octicon octicon-alert\"></span>"+
+                                  "No data to load into form. Row creation <i>coming soon</i>.</div>"
+                        }
 
   return html;
 
