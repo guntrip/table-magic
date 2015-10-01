@@ -550,7 +550,12 @@ function array2html(array) {
 
 function array2form(array) {
 
-  var html = "<table><thead>";
+  var html = "<div class=\"buttonbar\">"+
+             "<button class=\"btn btn-sm\" type=\"button\" onclick=\"form_add_row();\">Add row</button> "+
+             "<button class=\"btn btn-sm\" type=\"button\" onclick=\"form_add_col();\">Add column</button>"+
+             "</div>";
+
+  html += "<table class=form><thead>";
 
   for (var r = 0; r < array.length; r++) {
 
@@ -567,9 +572,19 @@ function array2form(array) {
         html += "<td>";
         html += "<input id='form-"+r+"-"+c+"' value=\"";
         html += item;
-        html += "\"></td>";
+        html += "\"";
+        if (r===0) { html += " class=header"; }
+        html += "></td>";
 
       }
+
+      html += "<td class=\"button\">"+
+              "<button class=\"btn btn-sm\" type=\"button\"><span class=\"octicon octicon-repo-forked\" onclick=\"form_duplicate_row("+r+")\";></span></button> "+
+              "<button class=\"btn btn-sm btn-danger\" type=\"button\"><span class=\"octicon octicon-trashcan\" onclick=\"form_remove_row("+r+")\";></span></button>"+
+              "</td>";
+
+
+
 
       html += "</tr>";
 
@@ -585,9 +600,9 @@ function array2form(array) {
 
   html += "</tbody></table>";
 
-  if (array.length===0) { html += "<div class=\"flash flash-warn flash-with-icon\">"+
-                                  "<span class=\"octicon octicon-alert\"></span>"+
-                                  "No data to load into form. Row creation <i>coming soon</i>.</div>"
+  if (array.length===0) { html += "<div class=\"flash flash-with-icon\">"+
+                                  "<span class=\"octicon octicon-tools\"></span>"+
+                                  "You can use the tools above to create your table or enter some markdown or CSV on the other tabs.</div>"
                         }
 
   return html;
@@ -599,6 +614,84 @@ function md2html(md) {
   // can do formatting inside. Yay.
   var converter = new showdown.Converter();
   return converter.makeHtml(md);
+}
+
+// form modification
+function form_redraw(array) {
+  var html = array2form(array);
+  $('.preview').html(html);
+}
+
+function form_add_row() {
+
+  // Save current form to array
+  var array = form2array();
+
+  // Add a row.
+  var newrow=[];
+
+    // How many columns?
+    var colcount=1;
+    if (array[0]) {colcount=array[0].length;}
+
+    // Loop and add.
+    for (var c = 0; c < colcount; c++) {
+    newrow[c]="";
+    }
+
+    array.push(newrow);
+
+  // Redraw
+  form_redraw(array);
+
+}
+
+function form_add_col() {
+
+  // Save current form to array
+  var array = form2array();
+
+  // Loop through array, adding one to the end of each row.
+  for (var r = 0; r < array.length; r++) {
+    array[r].push("");
+  }
+
+  // If empty, we add one.
+  if (array.length===0) { array.push([""]); }
+
+  // Redraw
+  form_redraw(array);
+
+}
+
+function form_duplicate_row(row) {
+
+  // Save current form to array
+  var array = form2array();
+
+  console.log(row);
+
+  // Splice the row
+  array.splice(row,0,array[row]);
+
+  // Redraw
+  form_redraw(array);
+
+}
+
+function form_remove_row(row) {
+
+  // Save current form to array
+  var array = form2array();
+
+  console.log(row);
+
+  // Splice the row
+  array.splice(row,1);
+
+  // Redraw
+  form_redraw(array);
+
 }
 
 function fill_example() {

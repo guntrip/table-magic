@@ -33,6 +33,12 @@ textarea {
   min-height:250px;
 }
 
+div.buttonbar {
+  margin-bottom:12px;
+  padding-bottom:8px;
+  border-bottom: 1px solid #ccc;
+}
+
 table {
     display: table;
     border-collapse: separate;
@@ -60,8 +66,17 @@ table p {
   display:inline;
 }
 
+table.form thead td.button,  table.form tbody td.button  {
+  background-color: #fff;
+  border: 1px solid #fff;
+}
+
+input.header {
+  font-weight:bold;
+}
+
 .footer {
   margin-top:22px;
   text-align:center;
-  color:#9d9d9d;  
+  color:#9d9d9d;
 }
