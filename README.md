@@ -1,3 +1,3 @@
 # table-magic
 
-Converts between CSV and markdown, rendering both as GitHub-flavoured markdown tables.
+Allows you to seamlessly switch between CSV, markdown and a little form-based editor. Also lets you to preview the table as it would appear.
