@@ -550,6 +550,8 @@ function array2html(array) {
 
 function array2form(array) {
 
+  form_cols=0;
+
   var html = "<div class=\"buttonbar\">"+
              "<button class=\"btn btn-sm\" type=\"button\" onclick=\"form_add_row();\">Add row</button> "+
              "<button class=\"btn btn-sm\" type=\"button\" onclick=\"form_add_col();\">Add column</button>"+
@@ -592,7 +594,7 @@ function array2form(array) {
         html += "</thead><tbody>";
       }
 
-      form_cols=row.length;
+      if (row.length>form_cols) { form_cols=row.length; }
 
   }
 
