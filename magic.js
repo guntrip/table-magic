@@ -581,8 +581,8 @@ function array2form(array) {
       }
 
       html += "<td class=\"button\">"+
-              "<button class=\"btn btn-sm\" type=\"button\"><span class=\"octicon octicon-repo-forked\" onclick=\"form_duplicate_row("+r+")\";></span></button> "+
-              "<button class=\"btn btn-sm btn-danger\" type=\"button\"><span class=\"octicon octicon-trashcan\" onclick=\"form_remove_row("+r+")\";></span></button>"+
+              "<button class=\"btn btn-sm\" type=\"button\"><span class=\"octicon octicon-repo-forked\" onclick=\"form_duplicate_row("+r+");\"></span></button> "+
+              "<button class=\"btn btn-sm btn-danger\" type=\"button\"><span class=\"octicon octicon-trashcan\" onclick=\"form_remove_row("+r+");\"></span></button>"+
               "</td>";
 
 
