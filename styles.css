@@ -33,6 +33,11 @@ textarea {
   min-height:250px;
 }
 
+textarea.md {
+  font-family: Consolas,"Liberation Mono",Menlo,Courier,monospace;
+  overflow: auto;
+}
+
 div.buttonbar {
   margin-bottom:12px;
   padding-bottom:8px;

@@ -1,4 +1,4 @@
-var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0;
+var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true;
 
 var example_csv='Feature, Description, Example\n'+
                 'Renders markdown, Uses the showdown library to render contents of table cells for you, **Just** *like* ``this``\n'+
@@ -10,6 +10,8 @@ $(window).load(function() {
 
   // Initial div
   layout(true);
+
+  if (tab!=="md") { $('#md-options').hide(); }
 
   // bind form buttons
   $("body").delegate(".button-duplicate", "click", function() {
@@ -24,13 +26,31 @@ $(window).load(function() {
      }
     });
 
+    $("#check-formatter").change(function() {
+      if ($("#check-formatter").is(':checked')) {
+    	   prettify_md=true;
+    	} else {
+        prettify_md=false;
+    	}
+
+      if (tab==="md") {
+        // refresh.
+        var array = md2array($("textarea").val());
+        var md = array2md(array);
+        $('textarea').val(md);
+      }
+
+     });
+
+
+
 });
 
 
 function layout(editing) {
 
   if (editing) {
-    var html = "<textarea></textarea>";
+    var html = "<textarea wrap=off></textarea>";
   } else {
     var html = "<div class=\"preview\"></div>";
   }
@@ -238,6 +258,16 @@ function changeTab(newTab) {
       // Update classes
       $('.tabnav-tab').removeClass('selected');
       $('#tab-'+newTab).addClass('selected');
+
+      if (tab==='md') {
+        $('textarea').removeClass('md');
+        $('#md-options').hide();
+      }
+
+      if (newTab==='md') {
+        $('textarea').addClass('md');
+        $('#md-options').show();
+      }
 
       // Update variables
       tab = newTab;
@@ -485,7 +515,16 @@ function array2csv(array) {
 
 function array2md(array) {
 
-  var md = "";
+  var md = "", cell_sizes = [];
+
+  // Gather max cell sizes for each column.
+  for (var r = 0; r < array.length; r++) {
+    for (var c = 0; c < array[r].length; c++) {
+      if ( (!cell_sizes[c]) || (array[r][c].length>cell_sizes[c]) ) {
+        cell_sizes[c]=array[r][c].length;
+      }
+    }
+  }
 
   for (var r = 0; r < array.length; r++) {
 
@@ -500,6 +539,20 @@ function array2md(array) {
         md += "| ";
         md += item;
 
+        if (prettify_md) {
+
+          // Add spaces to fill the gaps
+          var spaces = cell_sizes[c] - item.length;
+
+          // Must always be at least 3
+          if ((spaces<1)&&(item.length===0)) { spaces=1; }
+
+          for (var s = 0; s < spaces; s++) {
+            md += " ";
+          }
+
+        }
+
       }
 
       md += " |";
@@ -507,11 +560,30 @@ function array2md(array) {
 
       // Headers /!!/
       if (r==0) {
-          md += "|";console.log(header_alignment);
+
+          md += "|";
           for (var c = 0; c < row.length; c++) {
-            var h="---";
-            if (header_alignment[c]==="c") h=":---:";
-            if (header_alignment[c]==="r") h="---:";
+
+            var dashes="---";
+
+            // Extend dashes if prettifying.
+            if (prettify_md) {
+
+              var spaces = cell_sizes[c] + 2;
+
+              // Make room for formatting colons
+              if (header_alignment[c]==="c") {spaces=spaces-2;}
+              if (header_alignment[c]==="r") {spaces=spaces-1;}
+
+              for (var s = 3; s < spaces; s++) {
+                dashes += "-";
+              }
+
+            }
+
+            var h=dashes;
+            if (header_alignment[c]==="c") h=":"+dashes+":";
+            if (header_alignment[c]==="r") h=dashes+":";
 
             md+=h+"|";
           }
