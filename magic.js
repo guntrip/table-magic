@@ -801,6 +801,8 @@ function fill_example() {
 
     // Simulate switching to preview.
     layout(false);
+    $('textarea').removeClass('md');
+    $('#md-options').hide();
 
     // Convert example csv to array
     var array = csv2array(example_csv);
