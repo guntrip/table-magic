@@ -365,8 +365,8 @@ function md2array(md) {
       if (cursor>0) {
         save=true;
 
-        // Check ahead, if this is a closing pipe, we can skip it.
-        if ( (md[c+1]==="\n") || (c === (md.length-1)) ) { skip=true; save=false; }
+        // Check ahead, if this is a closing pipe/trailing space, we can skip it.
+        if ( (md[c+1]==="\n") || ( (md[c+1]===" ") && (md[c+2]==="\n") ) || (c === (md.length-1)) ) { skip=true; save=false; }
 
       } else {
         skip=true; // First pipe
