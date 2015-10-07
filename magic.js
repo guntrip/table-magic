@@ -445,7 +445,11 @@ function array2csv(array) {
 
         // Add slashes
         if (quotes) { item = item.replace(/"/g, '\\"'); }
-        item = item.replace(/'/g, "\\'");
+
+        // Are there any single quotes?
+        for (var i = 0; i < item.length; i++) { if (item[i]==="'") quotes = true; }
+
+        //item = item.replace(/'/g, "\\'");
 
         // Output
         if (c>0) csv += ", ";
