@@ -1,6 +1,6 @@
 # table-magic
 
-Allows you to seamlessly switch between CSV, markdown and a little form-based editor. Also allow you to preview the table as it would appear on GitHub.
+Allows you to seamlessly switch between CSV, markdown and a little form-based editor. Also allows you to preview the table as it would appear on GitHub.
 
 | Feature                            | Description                                             |
 |------------------------------------|---------------------------------------------------------|
