@@ -12,3 +12,5 @@ Allows you to seamlessly switch between CSV, markdown and a little form-based ed
 | Form view                          | Create tables with buttons!                             |
 
 I've made this as a little learning exercise to play with Primer, Atom, GitHub Desktop and GitHub itself.
+
+I keep an up-to-date version of this on my GitHub Pages site: [**http://stevecat.github.io/table-magic/**](http://stevecat.github.io/table-magic/)
