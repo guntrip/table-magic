@@ -1,10 +1,12 @@
-var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true;
+var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true, debug=false;
 
 var example_csv='Feature, Description, Example\n'+
-                'Renders markdown, Uses the showdown library to render contents of table cells for you, **Just** *like* ``this``\n'+
-                'Escapes quotes, CSV is easier to edit without so only uses them when necessary, "It does an \\\"okay\\\" job"\n'+
+                'Renders markdown, Uses showdown library to render contents of table cells, **Just** *like* ``this``\n'+
+                'Escapes quotes, Easier to edit without so only uses them when necessary, "It does an \\\"okay\\\" job"\n'+
                 'Preview table matches GitHub style, As closely as possible, Look!\n'+
                 'Preserves alignment, Between all views, Switch to CSV and back\n'+
+                'Markdown formatting, "Adds spaces, makes things more legible",Markdown tab\n'+
+                'Form view, "Create tables with buttons!",Form tab\n'+
                 'Hasn\\\'t caught fire yet, So far, Hurrah';
 $(window).load(function() {
 
@@ -343,7 +345,8 @@ function csv2array(csv) {
 
   }
 
-  console.table(array);
+  if (debug) { console.table(array); }
+
   return array;
 
 }
@@ -440,7 +443,7 @@ function md2array(md) {
 
   }
 
-  console.table(array);
+  if (debug) { console.table(array); }
 
   return(array);
 
@@ -494,6 +497,9 @@ function array2csv(array) {
 
         // Are there any single quotes?
         for (var i = 0; i < item.length; i++) { if (item[i]==="'") quotes = true; }
+
+        // Are there any commas?
+        for (var i = 0; i < item.length; i++) { if (item[i]===",") quotes = true; }
 
         //item = item.replace(/'/g, "\\'");
 
@@ -705,7 +711,7 @@ function array2form(array) {
 
 function md2html(md) {
   // showdown can't do tables, but it
-  // can do formatting inside. Yay.
+  // can do the formatting inside. Yay.
   var converter = new showdown.Converter();
   return converter.makeHtml(md);
 }
@@ -763,7 +769,7 @@ function form_duplicate_row(row) {
   // Save current form to array
   var array = form2array();
 
-  console.log(row);
+  if (debug) { console.log('Duplicating: '+row); }
 
   // Splice the row
   array.splice(row,0,array[row]);
@@ -778,7 +784,7 @@ function form_remove_row(row) {
   // Save current form to array
   var array = form2array();
 
-  console.log(row);
+  if (debug) { console.log('Deleting: '+row); }
 
   // Splice the row
   array.splice(row,1);
