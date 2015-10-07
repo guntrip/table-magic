@@ -6,6 +6,26 @@ var example_csv='Feature, Description, Example\n'+
                 'Preview table matches GitHub style, As closely as possible, Look!\n'+
                 'Preserves alignment, Between all views, Switch to CSV and back\n'+
                 'Hasn\\\'t caught fire yet, So far, Hurrah';
+$(window).load(function() {
+
+  // Initial div
+  layout(true);
+
+  // bind form buttons
+  $("body").delegate(".button-duplicate", "click", function() {
+    if (typeof $(this).closest("tr")[0].rowIndex === 'number') {
+      form_duplicate_row($(this).closest("tr")[0].rowIndex);
+    }
+   });
+
+   $("body").delegate(".button-remove", "click", function() {
+     if (typeof $(this).closest("tr")[0].rowIndex === 'number') {
+       form_remove_row($(this).closest("tr")[0].rowIndex);
+     }
+    });
+
+});
+
 
 function layout(editing) {
 
@@ -18,10 +38,6 @@ function layout(editing) {
   $("#display").html(html);
 
 }
-
-$(window).load(function() {
-  layout(true);
-});
 
 function changeTab(newTab) {
 
@@ -585,8 +601,8 @@ function array2form(array) {
       }
 
       html += "<td class=\"button\">"+
-              "<button class=\"btn btn-sm\" type=\"button\"><span class=\"octicon octicon-repo-forked\" onclick=\"form_duplicate_row("+r+");\"></span></button> "+
-              "<button class=\"btn btn-sm btn-danger\" type=\"button\"><span class=\"octicon octicon-trashcan\" onclick=\"form_remove_row("+r+");\"></span></button>"+
+              "<button class=\"btn btn-sm button-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
+              "<button class=\"btn btn-sm btn-danger button-remove\" type=\"button\"><span class=\"octicon octicon-trashcan\"></span></button>"+
               "</td>";
 
 
