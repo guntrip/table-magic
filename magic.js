@@ -395,6 +395,7 @@ function html2array_cells(html, splitter) {
       var cell = html_cell.replace(/<(?:.|\n)*?>/gm, '');
       cell=cell.trim();
 
+      // Switch &nbsp; back into spaces. This is a hack.
       cell=cell.replace(/&nbsp;/g, ' ');
 
       if ( (cell!=="") ) { result.push(cell); }
@@ -403,7 +404,7 @@ function html2array_cells(html, splitter) {
     }
 
   }
-  console.log(result);
+
   return result;
 
 }
@@ -414,6 +415,9 @@ function array2html(array) {
   var html = "<table>\n", startat=0;
 
   if (array.length>1) {
+    // Make a <thead> section
+
+    // Start main loop one later!
     startat=1;
 
     html += "  <thead>\n";
@@ -425,6 +429,7 @@ function array2html(array) {
 
   }
 
+  // Loop through the rest of the table.
   for (var r = startat; r < array.length; r++) {
 
     html += array2html_cells(array[r], "td");
@@ -445,7 +450,9 @@ var html = "    <tr>\n";
 
   for (var c = 0; c < row.length; c++) {
 
+    // Switch blank cell and spaces into &nbsp;
     if ((row[c]==="")||(row[c]===" ")) { row[c]="&nbsp;"; }
+
     html += "      <"+tag+">"+row[c]+"</"+tag+">\n";
 
   }
