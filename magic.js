@@ -5,6 +5,7 @@ var example_csv='Feature, Description, Example\n'+
                 'Escapes quotes, Easier to edit without so only uses them when necessary, "It does an \\\"okay\\\" job"\n'+
                 'Preview table matches GitHub style, As closely as possible, Look!\n'+
                 'Preserves alignment, Between all views, Switch to CSV and back\n'+
+                'Import HTML, Converts back and forth, Copy from *Inspect Element*\n'+
                 'Markdown formatting, "Adds spaces, makes things more legible",Markdown tab\n'+
                 'Form view, "Create tables with buttons!",Form tab\n'+
                 'Hasn\\\'t caught fire yet, So far, Huzzah!';
@@ -14,6 +15,7 @@ $(window).load(function() {
   layout(true);
 
   if (tab!=="md") { $('#md-options').hide(); }
+  if (tab!=="import") { $('#import-options').hide(); }
 
   // bind form buttons
   $("body").delegate(".button-duplicate", "click", function() {
@@ -65,197 +67,53 @@ function changeTab(newTab) {
 
     if (tab!==newTab) {
 
-      var input = $("textarea").val();
-
-      // What direction?
-
-        // md > csv
-        if ( (tab==="md") && (newTab==="csv") ) {
-
-          layout(true);
-
-          // Convert md to array
-          var array = md2array(input);
-
-          // Array to csv
-          var csv = array2csv(array);
-
-          // Pop into textarea
-          $('textarea').val(csv);
-
-        }
-
-        // csv > md
-        if ( (tab==="csv") && (newTab==="md") ) {
-
-          layout(true);
-
-          // Convert csv to array
-          var array = csv2array(input);
-
-          // Array to md
-          var md = array2md(array);
-
-          // Pop into textarea
-          $('textarea').val(md);
-
-        }
-
-        // csv > form
-        if ( (tab==="csv") && (newTab==="form") ) {
-
-            layout(false);
-
-            // Convert md to array
-            var array = csv2array(input);
-
-            // And to html
-            var html = array2form(array);
-
-            array_storge = array; // Store the array
-
-            $('.preview').html(html);
-
-        }
-
-        // md > form
-        if ( (tab==="md") && (newTab==="form") ) {
-
-            layout(false);
-
-            // Convert md to array
-            var array = md2array(input);
-
-            // And to html
-            var html = array2form(array);
-
-            $('.preview').html(html);
-
-        }
-
-        // form > md
-        if ( (tab==="form") && (newTab==="md") ) {
-
-           // Convert form into array
-           var array = form2array();
-
-           // Convet array into md
-           var md = array2md(array);
-
-           // Update design
-           layout(true);
-
-           // Pop into text area
-           $('textarea').val(md);
-
-        }
-
-        // form > csv
-        if ( (tab==="form") && (newTab==="csv") ) {
-
-           // Convert form into array
-           var array = form2array();
-
-           // Convet array into md
-           var csv = array2csv(array);
-
-           // Update design
-           layout(true);
-
-           // Pop into text area
-           $('textarea').val(csv);
-
-        }
-
-        // csv > preview
-        if ( (tab==="csv") && (newTab==="preview") ) {
-
-            layout(false);
-
-            // Convert md to array
-            var array = csv2array(input);
-
-            // And to html
-            var html = array2html(array);
-
-            array_storge = array; // Store the array
-
-            $('.preview').html(html);
-
-        }
-
-        // md > preview
-        if ( (tab==="md") && (newTab==="preview") ) {
-
-            layout(false);
-
-            // Convert md to array
-            var array = md2array(input);
-
-            // And to html
-            var html = array2html(array);
-
-            array_storge = array; // Store the array
-
-            $('.preview').html(html);
-
-        }
-
-        // form > preview
-        if ( (tab==="form") && (newTab==="preview") ) {
-
-            // Convert form to array
-            var array = form2array();
-
-            // And to html
-            var html = array2html(array);
-
-            // Update design late
-            layout(false);
-
-            array_storge = array; // Store the array
-
-            $('.preview').html(html);
-
-        }
-
-        // preview > csv
-        if ( (tab==="preview") && (newTab==="csv") ) {
-
-           layout(true);
-
-           // Convert stored array into csv
-           var csv = array2csv(array_storge);
-
-           // Pop into text area
-           $('textarea').val(csv);
-
-        }
-
-        // preview > md
-        if ( (tab==="preview") && (newTab==="md") ) {
-
-           layout(true);
-
-           // Convert stored array into md
-           var md = array2md(array_storge);
-
-           // Pop into text area
-           $('textarea').val(md);
-        }
-
-        // preview > form
-        if ( (tab==="preview") && (newTab==="form") ) {
-
-            layout(false);
-
-            // Convert array storage to form
-            var html = array2form(array_storge);
-
-            $('.preview').html(html);
-
-        }
-
+      // Convert to array
+      var input = $("textarea").val(), array = [];
+
+      if (tab==="md") { array = md2array(input); }
+      if (tab==="csv") { array = csv2array(input); }
+      if (tab==="html") { array = html2array(input); }
+      if (tab==="form") { array = array = form2array(); }
+      if (tab==="preview") { array = array_storge; }
+
+      // Convert from array into new format, set other vars..
+      var new_layout=true, output="";
+
+      if (newTab==="md") {
+        output = array2md(array);
+        new_layout=true;
+      }
+
+      if (newTab==="csv") {
+        output = array2csv(array);
+        new_layout=true;
+      }
+
+      if (newTab==="html") {
+        output = array2html(array);
+        new_layout=true;
+      }
+
+      if (newTab==="form") {
+        output = array2form(array);
+        new_layout=false;
+      }
+
+      if (newTab==="preview") {
+        output = array2preview(array);
+        array_storge = array; // store array
+        new_layout=false;
+      }
+
+      // Update DOM
+      layout(new_layout);
+
+      // Output
+      if (new_layout) {
+        $('textarea').val(output);
+      } else {
+        $('.preview').html(output);
+      }
 
       // Update classes
       $('.tabnav-tab').removeClass('selected');
@@ -277,6 +135,7 @@ function changeTab(newTab) {
     }
 
 }
+
 
 function csv2array(csv) {
 
@@ -449,6 +308,138 @@ function md2array(md) {
 
 }
 
+function html2array(html) {
+
+  var array = [], col_count=0;
+
+  // Is there a <thead>?
+  var search = html.indexOf("<thead");
+  if (search>-1) {
+
+    // Try and split html in half.
+    var html_split = html.split("</thead");
+
+    if (html_split.length===2) {
+
+      // 1 defined <thead> section, so pick out cells from <thead>
+      // and hand the second part of html to the rest of the function.
+      var thead = html_split[0];
+      var row = html2array_cells(thead, "th");
+
+      if (row.length>0) {
+        array.push(row);
+        col_count=row.length;
+      }
+
+      html = html_split[1];
+
+    } else {
+      //potential for a validation error?
+    }
+
+  }
+
+  // Split html by tr
+  var tr = html.split("<tr");
+
+  for (var t = 0; t < tr.length; t++) {
+
+    var html_row = tr[t];
+    row = html2array_cells(html_row, "td");
+
+    if (row.length>0) {
+
+      // If col_count is not set by thead, set it.
+      if (array.length===0) { col_count=row.length; }
+
+      if (row.length===col_count) {
+        array.push(row);
+      } else {
+        //potential for a validation error?
+      }
+
+    }
+
+  }
+
+  if (debug) { console.table(array); }
+
+  return array;
+
+}
+
+function html2array_cells(html, splitter) {
+
+  var result = [], td = html.split("<"+splitter);
+
+  for (var d = 0; d < td.length; d++) {
+
+    // Pop the <td/<th back on, as to not break the regex
+    if (td[d]!=="") {
+
+      var html_cell = "<"+splitter+td[d];
+
+      // Strip html and tidy
+      var cell = html_cell.replace(/<(?:.|\n)*?>/gm, '');
+      cell=cell.trim();
+
+      if (cell!=="") { result.push(cell); }
+
+    }
+
+  }
+
+  return result;
+
+}
+
+function array2html(array) {
+
+  // Produce a neat table.
+  var html = "<table>\n", startat=0;
+
+  if (array.length>1) {
+    startat=1;
+
+    html += "  <thead>\n";
+
+    html += array2html_cells(array[0],"th");
+
+    html += "  </thead>\n"+
+            "  <tbody>\n";
+
+  }
+
+  for (var r = startat; r < array.length; r++) {
+
+    html += array2html_cells(array[r], "td");
+
+  }
+
+  if (startat===1) { html += "  </tbody>\n"; }
+
+  html += "</table>";
+
+  return html;
+
+}
+
+function array2html_cells(row, tag) {
+
+var html = "    <tr>\n";
+
+  for (var c = 0; c < row.length; c++) {
+
+    html += "      <"+tag+">"+row[c]+"</"+tag+">\n";
+
+  }
+
+  html += "    </tr>\n";
+
+  return html;
+
+}
+
 function form2array() {
 
   var array = [];
@@ -602,7 +593,7 @@ function array2md(array) {
 
 }
 
-function array2html(array) {
+function array2preview(array) {
 
   var html = "<table><thead>";
 
@@ -709,6 +700,8 @@ function array2form(array) {
 
 }
 
+
+
 function md2html(md) {
   // showdown can't do tables, but it
   // can do the formatting inside. Yay.
@@ -809,7 +802,7 @@ function fill_example() {
     header_alignment=['l','l','r'];
 
     // And to html
-    var html = array2html(array);
+    var html = array2preview(array);
 
     array_storge = array; // Store the array
 
