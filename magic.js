@@ -18,17 +18,29 @@ $(window).load(function() {
   if (tab!=="import") { $('#import-options').hide(); }
 
   // bind form buttons
-  $("body").delegate(".button-duplicate", "click", function() {
+  $("body").delegate(".button-row-duplicate", "click", function() {
     if (typeof $(this).closest("tr")[0].rowIndex === 'number') {
       form_duplicate_row($(this).closest("tr")[0].rowIndex);
     }
    });
 
-   $("body").delegate(".button-remove", "click", function() {
+   $("body").delegate(".button-row-remove", "click", function() {
      if (typeof $(this).closest("tr")[0].rowIndex === 'number') {
        form_remove_row($(this).closest("tr")[0].rowIndex);
      }
     });
+
+    $("body").delegate(".button-col-duplicate", "click", function() {
+      if (typeof $(this).closest("td")[0].cellIndex === 'number') {
+        form_duplicate_col($(this).closest("td")[0].cellIndex);
+      }
+     });
+
+    $("body").delegate(".button-col-remove", "click", function() {
+      if (typeof $(this).closest("td")[0].cellIndex === 'number') {
+        form_remove_col($(this).closest("td")[0].cellIndex);
+      }
+     });
 
     $("#check-formatter").change(function() {
       if ($("#check-formatter").is(':checked')) {
@@ -370,7 +382,7 @@ function html2array(html) {
 
 function html2array_cells(html, splitter) {
 
-  var result = [], td = html.split("<"+splitter);
+  var result = [], td = html.split("<"+splitter), content=false;
 
   for (var d = 0; d < td.length; d++) {
 
@@ -383,7 +395,7 @@ function html2array_cells(html, splitter) {
       var cell = html_cell.replace(/<(?:.|\n)*?>/gm, '');
       cell=cell.trim();
 
-      if (cell!=="") { result.push(cell); }
+      if ( (cell!=="") ) { result.push(cell); }
 
     }
 
@@ -670,8 +682,8 @@ function array2form(array) {
       }
 
       html += "<td class=\"button\">"+
-              "<button class=\"btn btn-sm button-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
-              "<button class=\"btn btn-sm btn-danger button-remove\" type=\"button\"><span class=\"octicon octicon-trashcan\"></span></button>"+
+              "<button class=\"btn btn-sm button-row-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
+              "<button class=\"btn btn-sm btn-danger button-row-remove\" type=\"button\"><span class=\"octicon octicon-trashcan\"></span></button>"+
               "</td>";
 
 
@@ -688,6 +700,21 @@ function array2form(array) {
   }
 
   form_rows=array.length;
+
+  if (array.length>0) {
+
+    html += "<tr>";
+
+      for (var c = 0; c < form_cols; c++) {
+        html += "<td class=\"button\" align=\"center\">"+
+                "<button class=\"btn btn-sm button-col-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
+                "<button class=\"btn btn-sm btn-danger button-col-remove\" type=\"button\"><span class=\"octicon octicon-trashcan\"></span></button>"+
+                "</td>";
+      }
+
+    html += "</tr>";
+
+  }
 
   html += "</tbody></table>";
 
@@ -781,6 +808,42 @@ function form_remove_row(row) {
 
   // Splice the row
   array.splice(row,1);
+
+  // Redraw
+  form_redraw(array);
+}
+
+function form_duplicate_col(col) {
+
+  // Save current form to array
+  var array = form2array();
+
+  if (debug) { console.log('Duplicating: '+col); }
+
+  // Loop through array, duplicating as we go :3
+  for (var r = 0; r < array.length; r++) {
+      array[r].splice(col,0,array[r][col]);
+  }
+
+  // Redraw
+  form_redraw(array);
+
+}
+
+function form_remove_col(col) {
+
+  // Save current form to array
+  var array = form2array();
+
+  if (debug) { console.log('Deleting: '+col); }
+
+  // Loop through array, slicing col from each row.
+  for (var r = 0; r < array.length; r++) {
+    array[r].splice(col,1);
+  }
+
+  // If columns are all gone, zap the rows too.
+  if (array[array.length-1].length===0) { array=[]; }
 
   // Redraw
   form_redraw(array);
