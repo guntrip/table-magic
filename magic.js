@@ -7,7 +7,7 @@ var example_csv='Feature, Description, Example\n'+
                 'Preserves alignment, Between all views, Switch to CSV and back\n'+
                 'Markdown formatting, "Adds spaces, makes things more legible",Markdown tab\n'+
                 'Form view, "Create tables with buttons!",Form tab\n'+
-                'Hasn\\\'t caught fire yet, So far, Hurrah';
+                'Hasn\\\'t caught fire yet, So far, Huzzah!';
 $(window).load(function() {
 
   // Initial div
