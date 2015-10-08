@@ -1,4 +1,4 @@
-var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true, debug=false;
+var tab = "html", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true, debug=true;
 
 var example_csv='Feature, Description, Example\n'+
                 'Renders markdown, Uses showdown library to render contents of table cells, **Just** *like* ``this``\n'+
@@ -14,6 +14,7 @@ $(window).load(function() {
   layout(true);
 
   if (tab!=="md") { $('#md-options').hide(); }
+  if (tab!=="import") { $('#import-options').hide(); }
 
   // bind form buttons
   $("body").delegate(".button-duplicate", "click", function() {
@@ -176,7 +177,7 @@ function changeTab(newTab) {
             var array = csv2array(input);
 
             // And to html
-            var html = array2html(array);
+            var html = array2preview(array);
 
             array_storge = array; // Store the array
 
@@ -208,7 +209,7 @@ function changeTab(newTab) {
             var array = form2array();
 
             // And to html
-            var html = array2html(array);
+            var html = array2preview(array);
 
             // Update design late
             layout(false);
@@ -256,6 +257,37 @@ function changeTab(newTab) {
 
         }
 
+        // html > form
+        if ( (tab==="html") && (newTab==="form") ) {
+
+            layout(false);
+
+            // Convert md to array
+            var array = html2array(input);
+
+            // And to form
+            var html = array2form(array);
+
+            $('.preview').html(html);
+
+        }
+
+        // form > html
+        if ( (tab==="form") && (newTab==="html") ) {
+
+          // Convert form into array
+          var array = form2array();
+
+          // Convet array into html
+          var html = array2html(array);
+
+          // Update design
+          layout(true);
+
+          // Pop into text area
+          $('textarea').val(html);
+
+        }
 
       // Update classes
       $('.tabnav-tab').removeClass('selected');
@@ -277,6 +309,7 @@ function changeTab(newTab) {
     }
 
 }
+
 
 function csv2array(csv) {
 
@@ -449,6 +482,138 @@ function md2array(md) {
 
 }
 
+function html2array(html) {
+
+  var array = [], col_count=0;
+
+  // Is there a <thead>?
+  var search = html.indexOf("<thead");
+  if (search>-1) {
+
+    // Try and split html in half.
+    var html_split = html.split("</thead");
+
+    if (html_split.length===2) {
+
+      // 1 defined <thead> section, so pick out cells from <thead>
+      // and hand the second part of html to the rest of the function.
+      var thead = html_split[0];
+      var row = html2array_cells(thead, "th");
+
+      if (row.length>0) {
+        array.push(row);
+        col_count=row.length;
+      }
+
+      html = html_split[1];
+
+    } else {
+      //potential for a validation error?
+    }
+
+  }
+
+  // Split html by tr
+  var tr = html.split("<tr");
+
+  for (var t = 0; t < tr.length; t++) {
+
+    var html_row = tr[t];
+    row = html2array_cells(html_row, "td");
+
+    if (row.length>0) {  console.log(row);
+
+      // If col_count is not set by thead, set it.
+      if (array.length===0) { col_count=row.length; }
+
+      if (row.length===col_count) {
+        array.push(row);
+      } else {
+        //potential for a validation error?
+      }
+
+    }
+
+  }
+
+  if (debug) { console.table(array); }
+
+  return array;
+
+}
+
+function html2array_cells(html, splitter) {
+
+  var result = [], td = html.split("<"+splitter);
+
+  for (var d = 0; d < td.length; d++) {
+
+    // Pop the <td/<th back on, as to not break the regex
+    if (td[d]!=="") {
+
+      var html_cell = "<"+splitter+td[d];
+
+      // Strip html and tidy
+      var cell = html_cell.replace(/<(?:.|\n)*?>/gm, '');
+      cell=cell.trim();
+
+      if (cell!=="") { result.push(cell); }
+
+    }
+
+  }
+
+  return result;
+
+}
+
+function array2html(array) {
+
+  // Produce a neat table.
+  var html = "<table>\n", startat=0;
+
+  if (array.length>1) {
+    startat=1;
+
+    html += "  <thead>\n";
+
+    html += array2html_cells(array[0],"th");
+
+    html += "  </thead>\n"+
+            "  <tbody>\n";
+
+  }
+
+  for (var r = startat; r < array.length; r++) {
+
+    html += array2html_cells(array[r], "td");
+
+  }
+
+  if (startat===1) { html += "  </tbody>\n"; }
+
+  html += "</table>";
+
+  return html;
+
+}
+
+function array2html_cells(row, tag) {
+
+var html = "    <tr>\n";
+
+  for (var c = 0; c < row.length; c++) {
+
+    html += "      <"+tag+">"+row[c]+"</"+tag+">\n";
+
+  }
+
+  html += "    </tr>\n";
+
+  return html;
+
+}
+
 function form2array() {
 
   var array = [];
@@ -602,7 +767,7 @@ function array2md(array) {
 
 }
 
-function array2html(array) {
+function array2preview(array) {
 
   var html = "<table><thead>";
 
@@ -709,6 +874,8 @@ function array2form(array) {
 
 }
 
+
+
 function md2html(md) {
   // showdown can't do tables, but it
   // can do the formatting inside. Yay.
@@ -809,7 +976,7 @@ function fill_example() {
     header_alignment=['l','l','r'];
 
     // And to html
-    var html = array2html(array);
+    var html = array2preview(array);
 
     array_storge = array; // Store the array
 
