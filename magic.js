@@ -395,12 +395,15 @@ function html2array_cells(html, splitter) {
       var cell = html_cell.replace(/<(?:.|\n)*?>/gm, '');
       cell=cell.trim();
 
+      cell=cell.replace(/&nbsp;/g, ' ');
+
       if ( (cell!=="") ) { result.push(cell); }
+
 
     }
 
   }
-
+  console.log(result);
   return result;
 
 }
@@ -442,6 +445,7 @@ var html = "    <tr>\n";
 
   for (var c = 0; c < row.length; c++) {
 
+    if ((row[c]==="")||(row[c]===" ")) { row[c]="&nbsp;"; }
     html += "      <"+tag+">"+row[c]+"</"+tag+">\n";
 
   }
