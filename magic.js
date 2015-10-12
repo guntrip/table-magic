@@ -367,7 +367,25 @@ function html2array(html) {
       if (row.length===col_count) {
         array.push(row);
       } else {
-        //potential for a validation error?
+
+        // Validation error, try and fix.
+        if (col_count>row.length) {
+          console.log('omgehghg');
+          // Cells missing, add blanks
+          var loopfor=(col_count-row.length);
+          for (var l = 0; l < (col_count-row.length); l++) {
+            row.push('');
+          }
+
+          array.push(row);
+
+        } else {
+
+          // Too many cells, ignore.
+
+        }
+
+
       }
 
     }
@@ -400,45 +418,52 @@ function html2array_cells(html, splitter) {
 
       if ( (cell!=="") ) { result.push(cell); }
 
-
     }
 
   }
 
-  return result;
+    return result;
 
 }
 
 function array2html(array) {
 
-  // Produce a neat table.
-  var html = "<table>\n", startat=0;
+  if (array.length===0)  {
 
-  if (array.length>1) {
-    // Make a <thead> section
+    var html = "";
 
-    // Start main loop one later!
-    startat=1;
+  } else {
 
-    html += "  <thead>\n";
+    // Produce a neat table.
+    var html = "<table>\n", startat=0;
 
-    html += array2html_cells(array[0],"th");
+    if (array.length>1) {
+      // Make a <thead> section
 
-    html += "  </thead>\n"+
-            "  <tbody>\n";
+      // Start main loop one later!
+      startat=1;
+
+      html += "  <thead>\n";
+
+      html += array2html_cells(array[0],"th");
+
+      html += "  </thead>\n"+
+              "  <tbody>\n";
+
+    }
+
+    // Loop through the rest of the table.
+    for (var r = startat; r < array.length; r++) {
+
+      html += array2html_cells(array[r], "td");
+
+    }
+
+    if (startat===1) { html += "  </tbody>\n"; }
+
+    html += "</table>";
 
   }
-
-  // Loop through the rest of the table.
-  for (var r = startat; r < array.length; r++) {
-
-    html += array2html_cells(array[r], "td");
-
-  }
-
-  if (startat===1) { html += "  </tbody>\n"; }
-
-  html += "</table>";
 
   return html;
 
