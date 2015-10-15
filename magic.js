@@ -217,6 +217,8 @@ function csv2array(csv) {
 
   }
 
+  array = addEmptyCells(array);
+
   if (debug) { console.table(array); }
 
   return array;
@@ -317,6 +319,8 @@ function md2array(md) {
 
   if (debug) { console.table(array); }
 
+  array = addEmptyCells(array);
+
   return(array);
 
 }
@@ -394,6 +398,8 @@ function html2array(html) {
   }
 
   if (debug) { console.table(array); }
+
+  array = addEmptyCells(array);
 
   return array;
 
@@ -510,6 +516,31 @@ function form2array() {
     // Save to array
     array[r]=currentrow;
 
+  }
+
+  array = addEmptyCells(array);
+
+  return array;
+
+}
+
+function addEmptyCells(array) {
+
+  // Length of longest row
+  var max = 0;
+
+  for (var r = 0; r < array.length; r++) {
+    if (array[r].length>max) max = array[r].length;
+  }
+
+  // Add blank cells for any that don't reach that length
+  for (var r = 0; r < array.length; r++) {
+    if (array[r].length<max) {
+      var loop = max-array[r].length;
+      for (var l = 0; l < loop; l++) {
+        array[r].push('');
+      }
+    }
   }
 
   return array;
