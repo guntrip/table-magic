@@ -153,15 +153,16 @@ function changeTab(newTab) {
 function csv2array(csv) {
 
   var row = 0, col = 0, quote = false, doublequote = false, save = false,
-  escape = false, buffer = "", array=[];
+  escape = false, buffer = "", array=[], tabmode=false;
 
   for (var c = 0; c < csv.length; c++) {
 
     var char = csv[c], skip = false;
 
     // Comma or new line - if not within quotes.
-    if ( ( (char===",") || (char==="\n") ) && (!quote) && (!doublequote) ) {
+    if ( ( ((char===",")&&(!tabmode)) || (char==="\t") ||(char==="\n") ) && (!quote) && (!doublequote) ) {
       save=true;
+      if (char==="\t") tabmode = true;
     }
 
     // doublequote
@@ -210,7 +211,7 @@ function csv2array(csv) {
       buffer="";
       save=false;
 
-      if (char===",") { col++; }
+      if (((char===",")&&(!tabmode))||(char==="\t")) { col++; }
       if (char==="\n") { col=0; row++; }
 
     }
