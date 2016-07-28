@@ -591,6 +591,72 @@ function sql2array(sql) {
 
 function array2sql(array) {
 
+  var md = "", cell_sizes = [];
+
+  // Gather max cell sizes for each column.
+  for (var r = 0; r < array.length; r++) {
+    for (var c = 0; c < array[r].length; c++) {
+      if ( (!cell_sizes[c]) || (array[r][c].length>cell_sizes[c]) ) {
+        cell_sizes[c]=array[r][c].length;
+      }
+    }
+  }
+
+  for (var r = 0; r < array.length; r++) {
+
+      var row = array[r];
+
+      if (r==0) { md += array2sqlDashes(cell_sizes, row.length)+"\n"; }
+
+      for (var c = 0; c < row.length; c++) {
+
+        var item = row[c];
+
+        // Output
+        if (c>0) { md += " "; }
+        md += "| ";
+        md += item;
+
+          // Add spaces to fill the gaps
+          var spaces = cell_sizes[c] - item.length;
+
+          // Must always be at least 3
+          if ((spaces<1)&&(item.length===0)) { spaces=1; }
+
+          for (var s = 0; s < spaces; s++) {
+            md += " ";
+          }
+
+      }
+
+      md += " |";
+      if (r<array.length) { md += "\n"; }
+
+  }
+
+  return md;
+
+}
+
+function array2sqlDashes(cell_sizes, rowlength) {
+
+  var line = "";
+
+  for (var c = 0; c < rowlength; c++) {
+
+    var dashes="";
+
+      var spaces = cell_sizes[c] + 2;
+
+      for (var s = 0; s < spaces; s++) {
+        line += "+";
+      }
+
+    line+="|";
+
+  }
+
+  return line;
 
 }
 
