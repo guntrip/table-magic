@@ -138,12 +138,12 @@ function changeTab(newTab) {
       $('.tabnav-tab').removeClass('selected');
       $('#tab-'+newTab).addClass('selected');
 
-      if (tab==='md') {
+      if ((tab==='md')||tab==='sql') {
         $('textarea').removeClass('md');
         $('#md-options').hide();
       }
 
-      if (newTab==='md') {
+      if ((newTab==='md')||newTab==='sql') {
         $('textarea').addClass('md');
         $('#md-options').show();
       }
@@ -628,9 +628,15 @@ function array2sql(array) {
           }
 
       }
-
       md += " |";
-      if (r<array.length) { md += "\n"; }
+
+      if (r<(array.length-1)) {
+        md += "\n";
+      } else {
+        md += "\n"+array2sqlDashes(cell_sizes, row.length);
+      }
+
+      if (r==0) { md += array2sqlDashes(cell_sizes, row.length)+"\n"; }
 
   }
 
@@ -640,7 +646,7 @@ function array2sql(array) {
 
 function array2sqlDashes(cell_sizes, rowlength) {
 
-  var line = "";
+  var line = "+";
 
   for (var c = 0; c < rowlength; c++) {
 
@@ -649,10 +655,10 @@ function array2sqlDashes(cell_sizes, rowlength) {
       var spaces = cell_sizes[c] + 2;
 
       for (var s = 0; s < spaces; s++) {
-        line += "+";
+        line += "-";
       }
 
-    line+="|";
+    line+="+";
 
   }
 
