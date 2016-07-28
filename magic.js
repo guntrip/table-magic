@@ -513,7 +513,7 @@ function sql2array(sql) {
   for (var c = 0; c < sql.length; c++) {
 
     // Find first + on a new line, allows the query to be included.
-    if ( ((sql[c]==="\n")&&(sql[c+1]==="+")) || ((line===0)&&(sql[c]==="+")) ) {
+    if ( (((sql[c]==="\n")&&(sql[c+1]==="+")) || ((line===0)&&(sql[c]==="+"))) && (!start) ) {
       start = true;
       c++;
     }
