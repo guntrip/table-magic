@@ -16,7 +16,7 @@ $(window).load(function() {
   layout(true);
 
   if (tab!=="md") { $('#md-options').hide(); }
-  if (tab!=="import") { $('#import-options').hide(); }
+  if (tab!="sql") { $('#sql-info').hide(); }
 
   // bind form buttons
   $("body").delegate(".button-row-duplicate", "click", function() {
@@ -140,12 +140,14 @@ function changeTab(newTab) {
 
       if ((tab==='md')||tab==='sql') {
         $('textarea').removeClass('md');
-        $('#md-options').hide();
+        if (tab==='md') $('#md-options').hide();
+        if (tab==='sql') $('#sql-info').hide();
       }
 
       if ((newTab==='md')||newTab==='sql') {
         $('textarea').addClass('md');
-        $('#md-options').show();
+        if (newTab==='md') $('#md-options').show();
+        if (newTab==='sql') $('#sql-info').show();
       }
 
       // Update variables
