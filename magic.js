@@ -86,6 +86,7 @@ function changeTab(newTab) {
       if (tab==="md") { array = md2array(input); }
       if (tab==="csv") { array = csv2array(input); }
       if (tab==="html") { array = html2array(input); }
+      if (tab==="sql") { array = sql2array(input); }
       if (tab==="form") { array = form2array(); }
       if (tab==="preview") { array = array_storge; }
 
@@ -104,6 +105,11 @@ function changeTab(newTab) {
 
       if (newTab==="html") {
         output = array2html(array);
+        new_layout=true;
+      }
+
+      if (newTab==="sql") {
+        output = array2sql(array);
         new_layout=true;
       }
 
@@ -496,6 +502,95 @@ var html = "    <tr>\n";
   html += "    </tr>\n";
 
   return html;
+
+}
+
+function sql2array(sql) {
+
+  // Find first + on a new line, allows the query to be included.
+  var row = 0, col = -1, line = 0, cursor = 0, start = false, step = "pre",
+      columns = 0, thisCell="", array=[], skip = false;
+
+  for (var c = 0; c < sql.length; c++) {
+
+    if (sql[c]==="\n") line++;
+
+    if ( ((sql[c]==="\n")&&(sql[c+1]==="+")) || ((line===0)&&(sql[c]==="+")) ) start = true;
+
+    if (start) {
+      // Table has begun.
+
+      if (step==="pre") {
+        // Collecting column count.
+        if (sql[c]==="+") columns ++;
+        if (sql[c]==="\n") {
+          step="header";
+          array[0]=[];
+          c++;
+        }
+      }
+
+      if (step==="header") {
+        // Collecting the headers
+        if (sql[c]==="|") {
+          if (col>-1) array[0][col]=thisCell.trim();
+          col++;
+          thisCell="";
+        } else {
+          thisCell=thisCell+sql[c];
+        }
+        if (sql[c]==="\n") {
+          step="wait";
+          c++;
+        }
+      }
+
+      if (step==="wait") {
+        // Skim through the line under the header
+        if (sql[c]==="\n") {
+          step="data";
+          row=1;
+          col=-1;
+          thisCell="";
+          array[row]=[];
+          c++;
+        }
+      }
+
+      if (step==="data") {
+        // Reading data from table
+        if (sql[c]==="|") {
+          if (col>-1) {
+            if (col===0) array[row]=[];
+            array[row][col]=thisCell.trim();
+          }
+          col++;
+          thisCell="";
+        } else {
+          thisCell=thisCell+sql[c];
+        }
+        if (sql[c]==="\n") {
+          row++;
+          col=-1;
+          thisCell="";
+        }
+        if ((sql[c]==="+")&&(sql[c-1]=="\n")) {
+           // Complete.
+           step="end";
+        }
+
+      }
+
+    }
+
+  }
+
+  return array;
+
+}
+
+function array2sql(array) {
+
 
 }
 
