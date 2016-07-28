@@ -507,15 +507,18 @@ var html = "    <tr>\n";
 
 function sql2array(sql) {
 
-  // Find first + on a new line, allows the query to be included.
   var row = 0, col = -1, line = 0, cursor = 0, start = false, step = "pre",
       columns = 0, thisCell="", array=[], skip = false;
 
   for (var c = 0; c < sql.length; c++) {
 
-    if (sql[c]==="\n") line++;
+    // Find first + on a new line, allows the query to be included.
+    if ( ((sql[c]==="\n")&&(sql[c+1]==="+")) || ((line===0)&&(sql[c]==="+")) ) {
+      start = true;
+      c++;
+    }
 
-    if ( ((sql[c]==="\n")&&(sql[c+1]==="+")) || ((line===0)&&(sql[c]==="+")) ) start = true;
+    if (sql[c]==="\n") line++;
 
     if (start) {
       // Table has begun.
