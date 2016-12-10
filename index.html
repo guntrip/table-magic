@@ -32,7 +32,13 @@
 
   <div id="display"></div>
 
-  <div id="md-options">
+  <div id="csv-options" class="options">
+    <p>
+      <button class="btn" type="button" onclick="downloadCsv();"><span class="octicon octicon-cloud-download"></span> Download</button>
+    </p>
+  </div>
+
+  <div id="md-options" class="options">
     <div class="form-checkbox">
       <label>
         <input type="checkbox" checked="checked" id="check-formatter">
@@ -44,7 +50,7 @@
     </div>
   </div>
 
-  <div id="sql-info">
+  <div id="sql-info" class="options">
     <p class="note">
     Read about the SQL function <a href="https://github.com/stevecat/table-magic/pull/20">in this pull request</a>.
     </p>

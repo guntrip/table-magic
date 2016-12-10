@@ -16,6 +16,7 @@ $(window).load(function() {
   layout(true);
 
   if (tab!=="md") { $('#md-options').hide(); }
+  if (tab!="csv") { $('#csv-options').hide(); }
   if (tab!="sql") { $('#sql-info').hide(); }
 
   // bind form buttons
@@ -149,6 +150,12 @@ function changeTab(newTab) {
         if (newTab==='md') $('#md-options').show();
         if (newTab==='sql') $('#sql-info').show();
       }
+
+
+      $('.options').hide();
+      if (newTab==="md") { $('#md-options').show(); }
+      if (newTab==="csv") { $('#csv-options').show(); }
+      if (newTab==="sql") { $('#sql-info').show(); }
 
       // Update variables
       tab = newTab;
