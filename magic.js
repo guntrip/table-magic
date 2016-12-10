@@ -164,6 +164,21 @@ function changeTab(newTab) {
 
 }
 
+function downloadCsv() {
+
+  if (tab==="csv") {
+
+   var element = document.createElement('a');
+   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent($('textarea').val()));
+   element.setAttribute('download', 'tablemagic.csv');
+   element.style.display = 'none';
+   document.body.appendChild(element);
+   element.click();
+   document.body.removeChild(element);
+
+  }
+
+}
 
 function csv2array(csv) {
 
