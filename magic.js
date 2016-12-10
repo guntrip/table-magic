@@ -16,6 +16,7 @@ $(window).load(function() {
   layout(true);
 
   if (tab!=="md") { $('#md-options').hide(); }
+  if (tab!="csv") { $('#csv-options').hide(); }
   if (tab!="sql") { $('#sql-info').hide(); }
 
   // bind form buttons
@@ -150,6 +151,12 @@ function changeTab(newTab) {
         if (newTab==='sql') $('#sql-info').show();
       }
 
+
+      $('.options').hide();
+      if (newTab==="md") { $('#md-options').show(); }
+      if (newTab==="csv") { $('#csv-options').show(); }
+      if (newTab==="sql") { $('#sql-info').show(); }
+
       // Update variables
       tab = newTab;
 
@@ -157,6 +164,21 @@ function changeTab(newTab) {
 
 }
 
+function downloadCsv() {
+
+  if (tab==="csv") {
+
+   var element = document.createElement('a');
+   element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent($('textarea').val()));
+   element.setAttribute('download', 'tablemagic.csv');
+   element.style.display = 'none';
+   document.body.appendChild(element);
+   element.click();
+   document.body.removeChild(element);
+
+  }
+
+}
 
 function csv2array(csv) {
 
