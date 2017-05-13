@@ -1,4 +1,4 @@
-var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true, debug=false, global_form_cols=0;
+var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true, debug=false, global_form_cols=0, delete_mode=false;
 
 var example_csv='Feature, Description, Example\n'+
                 'Renders markdown, Uses showdown library to render contents of table cells, **Just** *like* ``this``\n'+
@@ -30,7 +30,19 @@ $(window).load(function() {
     });
 
     $("body").delegate("#toggle-delete", "click", function() {
-      $('table.form td.button').toggle();
+
+      if (delete_mode) {
+        delete_mode=false;
+        $('.btn-formmod.show').removeClass('show');
+        $('#toggle-delete').removeClass('active');
+        $('#toggle-delete').html("<span class=\"octicon octicon-trashcan\"></span> Enable deletion");
+      } else {
+        delete_mode=true;
+        $('.btn-formmod').addClass('show');
+        $('#toggle-delete').addClass('active');
+        $('#toggle-delete').html("<span class=\"octicon octicon-trashcan\"></span> Disable deletion");
+      }
+
      });
 
   $("body").delegate(".button-row-duplicate", "click", function() {
@@ -71,6 +83,12 @@ $(window).load(function() {
         $('textarea').val(md);
       }
 
+    });
+
+    $( window ).resize(function() {
+      if (tab==="form") {
+        form_resize();
+      }
     });
 
     // Table-builder
@@ -190,6 +208,8 @@ function changeTab(newTab) {
 
       if (tab==='form') {
         $('.form-tools').hide();
+        $('#viewport').removeAttr('style');
+        $('table.form').removeClass('scroll');
       }
 
 
@@ -968,7 +988,9 @@ function array2form(array) {
 
 
 
-  var html = "<table class=form><thead>";
+  var html = "<table class=form><thead>", button_class="";
+
+  if (delete_mode) button_class = " show";
 
   for (var r = 0; r < array.length; r++) {
 
@@ -993,7 +1015,7 @@ function array2form(array) {
 
       html += "<td class=\"button\">"+
               //"<button class=\"btn btn-sm button-row-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
-              "<button class=\"btn-formmod button-row-remove\" type=\"button\" title=\"Delete row\"><span class=\"octicon octicon-trashcan\"></span></button>"+
+              "<button class=\"btn-formmod button-row-remove"+button_class+"\" type=\"button\" title=\"Delete row\"><span class=\"octicon octicon-trashcan\"></span></button>"+
               "</td>";
 
 
@@ -1018,7 +1040,7 @@ function array2form(array) {
       for (var c = 0; c < form_cols; c++) {
         html += "<td class=\"button\" align=\"center\">"+
                 //"<button class=\"btn btn-sm button-col-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
-                "<button class=\"btn-formmod button-col-remove\" type=\"button\" title=\"Delete column\"><span class=\"octicon octicon-trashcan\"></span></button>"+
+                "<button class=\"btn-formmod button-col-remove"+button_class+"\" type=\"button\" title=\"Delete column\"><span class=\"octicon octicon-trashcan\"></span></button>"+
                 "</td>";
       }
 
@@ -1165,19 +1187,43 @@ function form_remove_col(col) {
 
 function form_resize() {
 
-  // <6 - scaled in display
-  // 6>12 - display 150%
-  // 12>20 - scaled in container
-  // >20 - container scrolls
-  console.log(global_form_cols);
-  $('#viewport').removeAttr('style');
+  // <640px, scaling until 6 fields
+  // 640>1024, scaling until 11 fields
+  // >1024, centered+scaling until 6, 100% and scaling until 12
 
-  if (global_form_cols<6) {
-    //
+  var window_size = $( window ).width();
+  $('#viewport').removeAttr('style');
+  $('table.form').removeClass('scroll');
+
+  if (window_size>1024) {
+
+    if ((global_form_cols>5)&&(global_form_cols<13)) {
+      $('#viewport').css('width', '100%');
+      console.log('yo')
+    }
+
+    if (global_form_cols>12) {
+      $('#viewport').css('width', '100%');
+      $('#viewport').css('overflow-x', 'scroll');
+      $('table.form').addClass('scroll');
+    }
+
   }
 
-  if ((global_form_cols>5)&&(global_form_cols<13)) {
-    $('#viewport').css('width', '75%');
+  if ( (window_size>640) && (window_size<1025) ) {
+
+    if (global_form_cols>8) {
+      $('#viewport').css('overflow-x', 'scroll');
+      $('table.form').addClass('scroll');
+    }
+
+  }
+
+  if (window_size<=640) {
+    if (global_form_cols>5) {
+      $('#viewport').css('overflow-x', 'scroll');
+      $('table.form').addClass('scroll');
+    }
   }
 
 }

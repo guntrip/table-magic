@@ -94,24 +94,37 @@ table.form input:focus {
   outline:0;
 }
 
-table.form td.button {
-  display:none;
-}
-
 button.btn-formmod {
+  display:none;
   border:none;
   background-color: #fff;
   color:#615f5f;
   border-radius: 2px;
 }
 
+button.btn-formmod.show {
+  display:block;
+}
+
 button.btn-formmod:hover {
   color:#dd1010;
+}
+
+#toggle-delete.active {
+  color:#c42222;
 }
 
 /* form scaling */
   table.form {
     width:100%;
+  }
+
+  table.form.scroll {
+    table-layout: fixed;
+  }
+
+  table.form.scroll td {
+    width:170px;
   }
 
 input.header {
@@ -126,15 +139,26 @@ input.header {
 
 .form-tools {
   overflow:hidden;
+  margin-top:-10px;
   margin-bottom:10px;
 }
 
 .form-tools .form-button {
   float:left;
-  background-color: red;
-  width:20px;
-  width:20px;
+  waidth:20px;
+  height:20px;
   margin:5px;
+  margin-right:12px;
+  padding-top:2px;
+  color:#878787;
+  border-radius: 2px;
+  text-align: center;
+  cursor:pointer;
+  user-select: none;
+}
+
+.form-tools .form-button:hover {
+  color:#000;
 }
 
 .form-tools .form-button.tablePos {
@@ -157,8 +181,8 @@ input.header {
 
 .table-builder div div {
   display:table-cell;
-  height:20px;
-  width:20px;
+  height:40px;
+  width:40px;
   border-bottom:2px solid #BE3B77;
   border-right:2px solid #BE3B77;
   background-color: #ead7e0;
@@ -185,7 +209,7 @@ input.header {
     padding:0px 5px;
   }
 }
-@media all and (max-width: 650px) {
+@media all and (max-width: 640px) {
   .tabnav-tab {
     padding:3px 6px;
     font-size:0.9em;
