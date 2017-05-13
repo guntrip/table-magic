@@ -13,6 +13,7 @@ color:#fff;
 .masthead .title {
   font-weight:bold;
   font-size:1.3em;
+  padding-left:10px;
 }
 
 .masthead .sub {
@@ -176,3 +177,24 @@ input.header {
 .table-builder div div.first { border-left:2px solid #BE3B77; }
 .table-builder div.first div.last { border-top:2px solid #ccc; }
 .table-builder div.last div.first { border-left:2px solid #ccc; }
+
+/* let's get responsive.. */
+@media all and (max-width: 1024px) {
+  .container {
+    width:100%;
+    padding:0px 5px;
+  }
+}
+@media all and (max-width: 650px) {
+  .tabnav-tab {
+    padding:3px 6px;
+    font-size:0.9em;
+  }
+  .masthead {
+    padding-top:0.5rem;
+    padding-bottom:0.5rem;
+  }
+  .masthead .title {
+    padding-left:3px;
+  }
+}
