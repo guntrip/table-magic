@@ -1,4 +1,4 @@
-var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true, debug=false;
+var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true, debug=false, global_form_cols=0;
 
 var example_csv='Feature, Description, Example\n'+
                 'Renders markdown, Uses showdown library to render contents of table cells, **Just** *like* ``this``\n'+
@@ -18,8 +18,21 @@ $(window).load(function() {
   if (tab!=="md") { $('#md-options').hide(); }
   if (tab!="csv") { $('#csv-options').hide(); }
   if (tab!="sql") { $('#sql-info').hide(); }
+  if (tab!="form") { $('.form-tools').hide(); }
 
   // bind form buttons
+  $("body").delegate("#new-row", "click", function() {
+    form_add_row();
+   });
+
+   $("body").delegate("#new-column", "click", function() {
+     form_add_col();
+    });
+
+    $("body").delegate("#toggle-delete", "click", function() {
+      $('table.form td.button').toggle();
+     });
+
   $("body").delegate(".button-row-duplicate", "click", function() {
     if (typeof $(this).closest("tr")[0].rowIndex === 'number') {
       form_duplicate_row($(this).closest("tr")[0].rowIndex);
@@ -60,7 +73,31 @@ $(window).load(function() {
 
     });
 
+    // Table-builder
 
+      // Opening square
+      $("body").delegate("#tablebuilder-start", "mousedown", function() {
+        tablebuilder_create();
+      });
+
+      // When other squares are entered
+      $("body").delegate(".table-builder>div>div", "mouseenter mouseup", function() {
+        if ($(this).attr('id')!=='start') {
+          if (event.buttons===0) {
+            var x = parseInt($(this).attr('x')), y = parseInt($(this).attr('y'));
+            tablebuilder_clear();
+            tablebuilder_build(x,y);
+          } else {
+            var x = parseInt($(this).attr('x'))+1, y = parseInt($(this).attr('y'))+1;
+            tablebuilder_draw(x,y);
+          }
+        }
+      });
+
+      // Mouse up on a square
+      $("body").delegate(".table-builder", "mouseout", function() {
+        tablebuilder_clear();
+      });
 
 });
 
@@ -151,11 +188,16 @@ function changeTab(newTab) {
         if (newTab==='sql') $('#sql-info').show();
       }
 
+      if (tab==='form') {
+        $('.form-tools').hide();
+      }
+
 
       $('.options').hide();
       if (newTab==="md") { $('#md-options').show(); }
       if (newTab==="csv") { $('#csv-options').show(); }
       if (newTab==="sql") { $('#sql-info').show(); }
+      if (newTab==="form") { $('.form-tools').show(); form_resize(); }
 
       // Update variables
       tab = newTab;
@@ -919,12 +961,14 @@ function array2form(array) {
 
   form_cols=0;
 
-  var html = "<div class=\"buttonbar\">"+
+  /*var html = "<div class=\"buttonbar\">"+
              "<button class=\"btn btn-sm\" type=\"button\" onclick=\"form_add_row();\">Add row</button> "+
              "<button class=\"btn btn-sm\" type=\"button\" onclick=\"form_add_col();\">Add column</button>"+
-             "</div>";
+             "</div>";*/
 
-  html += "<table class=form><thead>";
+
+
+  var html = "<table class=form><thead>";
 
   for (var r = 0; r < array.length; r++) {
 
@@ -948,8 +992,8 @@ function array2form(array) {
       }
 
       html += "<td class=\"button\">"+
-              "<button class=\"btn btn-sm button-row-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
-              "<button class=\"btn btn-sm btn-danger button-row-remove\" type=\"button\"><span class=\"octicon octicon-trashcan\"></span></button>"+
+              //"<button class=\"btn btn-sm button-row-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
+              "<button class=\"btn-formmod button-row-remove\" type=\"button\" title=\"Delete row\"><span class=\"octicon octicon-trashcan\"></span></button>"+
               "</td>";
 
 
@@ -973,8 +1017,8 @@ function array2form(array) {
 
       for (var c = 0; c < form_cols; c++) {
         html += "<td class=\"button\" align=\"center\">"+
-                "<button class=\"btn btn-sm button-col-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
-                "<button class=\"btn btn-sm btn-danger button-col-remove\" type=\"button\"><span class=\"octicon octicon-trashcan\"></span></button>"+
+                //"<button class=\"btn btn-sm button-col-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
+                "<button class=\"btn-formmod button-col-remove\" type=\"button\" title=\"Delete column\"><span class=\"octicon octicon-trashcan\"></span></button>"+
                 "</td>";
       }
 
@@ -988,6 +1032,8 @@ function array2form(array) {
                                   "<span class=\"octicon octicon-tools\"></span>"+
                                   "You can use the tools above to create your table or enter some markdown or CSV on the other tabs.</div>"
                         }
+
+  global_form_cols = form_cols;
 
   return html;
 
@@ -1006,6 +1052,7 @@ function md2html(md) {
 function form_redraw(array) {
   var html = array2form(array);
   $('.preview').html(html);
+  form_resize();
 }
 
 function form_add_row() {
@@ -1113,6 +1160,119 @@ function form_remove_col(col) {
 
   // Redraw
   form_redraw(array);
+
+}
+
+function form_resize() {
+
+  // <6 - scaled in display
+  // 6>12 - display 150%
+  // 12>20 - scaled in container
+  // >20 - container scrolls
+  console.log(global_form_cols);
+  $('#viewport').removeAttr('style');
+
+  if (global_form_cols<6) {
+    //
+  }
+
+  if ((global_form_cols>5)&&(global_form_cols<13)) {
+    $('#viewport').css('width', '75%');
+  }
+
+}
+
+function tablebuilder_create() {
+
+  // Gather position of #tablebuilder-start
+  var pos = $('#tablebuilder-start').offset();
+
+  // Create a table builder
+  $( "<div></div>" )
+  .addClass( "table-button" )
+  .html ("<div class=\"table-builder\"></div>")
+  .css('left', (pos.left-10)) // negate margin :)
+  .css('top', (pos.top-10))
+  .appendTo( "body" );
+
+  tablebuilder_draw(2, 2);
+
+}
+
+function tablebuilder_draw(cols, rows) {
+
+  // Draw a table
+  var builderHtml = "<div class=\"first\">";
+
+  for (var y = 0; y < rows; y++) {
+
+    for (var x = 0; x < cols; x++) {
+
+      builderHtml += "<div x="+(x+1)+" y="+(y+1)+"";
+
+      if (x==0) builderHtml += " class=\"first\"";
+      if (x==(cols-1)) builderHtml += " class=\"last\"";
+
+      builderHtml += "></div>";
+
+    }
+
+    if (y<(rows-1)) {
+      builderHtml+="</div><div";
+      if ((y+1)==(rows-1)) builderHtml += " class=\"last\"";
+      builderHtml += ">";
+    }
+
+  }
+
+  builderHtml += "</div>";
+
+  $('.table-builder').html(builderHtml);
+
+}
+
+function tablebuilder_clear() {
+  $('.table-button').remove();
+}
+
+function tablebuilder_build(x,y) {
+
+  // Is there already data?
+  var array = form2array(), proceed=true;
+  if (array.length>0) {
+
+    var r = confirm("Do you want to create a new "+x+"x"+y+" table and replace this one?");
+    if (!r) proceed = false;
+
+  }
+
+  // Make a new empty table!
+  if (proceed) {
+
+    var table = [];
+
+    for (var by = 0; by < y; by++) {
+
+      var row = [];
+
+      for (var bx = 0; bx < x; bx++) {
+
+          row.push('');
+
+      }
+
+      table.push(row);
+
+    }
+
+    var output = array2form(table);
+
+    $('.preview').html(output);
+
+    global_form_cols=x;
+    form_resize();
+
+  }
 
 }
 

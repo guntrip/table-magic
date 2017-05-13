@@ -76,6 +76,43 @@ table.form thead td.button,  table.form tbody td.button  {
   border: 1px solid #fff;
 }
 
+table.form td {
+  padding: 3px 4px;
+}
+
+table.form tr:nth-child(2n) input {
+    background-color: #f8f8f8;
+}
+
+table.form input {
+  border:none;
+  width:98%;
+}
+
+table.form input:focus {
+  outline:0;
+}
+
+table.form td.button {
+  display:none;
+}
+
+button.btn-formmod {
+  border:none;
+  background-color: #fff;
+  color:#615f5f;
+  border-radius: 2px;
+}
+
+button.btn-formmod:hover {
+  color:#dd1010;
+}
+
+/* form scaling */
+  table.form {
+    width:100%;
+  }
+
 input.header {
   font-weight:bold;
 }
@@ -85,3 +122,57 @@ input.header {
   text-align:center;
   color:#9d9d9d;
 }
+
+.form-tools {
+  overflow:hidden;
+  margin-bottom:10px;
+}
+
+.form-tools .form-button {
+  float:left;
+  background-color: red;
+  width:20px;
+  width:20px;
+  margin:5px;
+}
+
+.form-tools .form-button.tablePos {
+  margin-top:-10px;
+}
+
+.table-button {
+  position:absolute;
+  z-index: 1;
+}
+
+.table-builder {
+  display:table;
+  padding:10px 40px 40px 10px;
+}
+
+.table-builder div {
+  display:table-row;
+}
+
+.table-builder div div {
+  display:table-cell;
+  height:20px;
+  width:20px;
+  border-bottom:2px solid #BE3B77;
+  border-right:2px solid #BE3B77;
+  background-color: #ead7e0;
+}
+
+.table-builder { cursor: pointer; }
+
+.table-builder div.last div, .table-builder div div.last {
+  border-bottom:2px solid #ccc;
+  border-right:2px solid #ccc;
+  background-color: #fff;
+}
+
+/* stop the top and left borders over-running.. */
+.table-builder div.first div { border-top:2px solid #BE3B77; }
+.table-builder div div.first { border-left:2px solid #BE3B77; }
+.table-builder div.first div.last { border-top:2px solid #ccc; }
+.table-builder div.last div.first { border-left:2px solid #ccc; }
