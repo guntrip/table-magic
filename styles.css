@@ -114,6 +114,10 @@ button.btn-formmod:hover {
   color:#c42222;
 }
 
+.delHighlight, .delHighlight input {
+  background-color: #e4aeae !important;
+}
+
 /* form scaling */
   table.form {
     width:100%;

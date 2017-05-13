@@ -997,14 +997,14 @@ function array2form(array) {
       var row = array[r];
 
       if (r===0) { fontweight="bold;" } else { fontweight="normal"; }
-      html += "<tr style=\"font-weight:"+fontweight+"\">";
+      html += "<tr style=\"font-weight:"+fontweight+"\" class=\"row"+r+"\">";
 
       for (var c = 0; c < row.length; c++) {
 
         var item = row[c];
         item = item.replace(/"/g, '&quot;'); // replace "s
 
-        html += "<td>";
+        html += "<td class=\"col"+c+"\">";
         html += "<input id='form-"+r+"-"+c+"' value=\"";
         html += item;
         html += "\"";
@@ -1015,8 +1015,9 @@ function array2form(array) {
 
       html += "<td class=\"button\">"+
               //"<button class=\"btn btn-sm button-row-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
-              "<button class=\"btn-formmod button-row-remove"+button_class+"\" type=\"button\" title=\"Delete row\"><span class=\"octicon octicon-trashcan\"></span></button>"+
-              "</td>";
+              "<button class=\"btn-formmod button-row-remove"+button_class+"\" type=\"button\" title=\"Delete row\""+
+              " onmouseenter=\"del_row_hl("+r+", true);\"  onmouseleave=\"del_row_hl("+r+", false);\">"+
+              "<span class=\"octicon octicon-trashcan\"></span></button></td>";
 
 
 
@@ -1040,7 +1041,9 @@ function array2form(array) {
       for (var c = 0; c < form_cols; c++) {
         html += "<td class=\"button\" align=\"center\">"+
                 //"<button class=\"btn btn-sm button-col-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
-                "<button class=\"btn-formmod button-col-remove"+button_class+"\" type=\"button\" title=\"Delete column\"><span class=\"octicon octicon-trashcan\"></span></button>"+
+                "<button class=\"btn-formmod button-col-remove"+button_class+"\" type=\"button\" title=\"Delete column\""+
+                "onmouseenter=\"del_col_hl("+c+", true);\"  onmouseleave=\"del_col_hl("+c+", false);\""+
+                "><span class=\"octicon octicon-trashcan\"></span></button>"+
                 "</td>";
       }
 
@@ -1183,6 +1186,22 @@ function form_remove_col(col) {
   // Redraw
   form_redraw(array);
 
+}
+
+function del_row_hl(row, active) {
+  if (active) {
+    $('.row'+row).addClass('delHighlight');
+  } else {
+    $('.row'+row).removeClass('delHighlight');
+  }
+}
+
+function del_col_hl(col, active) {
+  if (active) {
+    $('.col'+col).addClass('delHighlight');
+  } else {
+    $('.col'+col).removeClass('delHighlight');
+  }
 }
 
 function form_resize() {
