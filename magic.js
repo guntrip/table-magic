@@ -1075,9 +1075,21 @@ function md2html(md) {
 
 // form modification
 function form_redraw(array) {
+
+  // Save scroll position:
+  var scrolled = $('#viewport').scrollLeft();
+
+  // Redraw the form!
   var html = array2form(array);
   $('.preview').html(html);
+
+  // Resize cells
   form_resize();
+
+  // Restore scroll position, we first scroll one pixel to force
+  // Chrome on OSX to show the scrollbars.
+  $('#viewport').scrollLeft(1).scrollLeft(scrolled);
+
 }
 
 function form_add_row() {
@@ -1218,7 +1230,6 @@ function form_resize() {
 
     if ((global_form_cols>5)&&(global_form_cols<13)) {
       $('#viewport').css('width', '100%');
-      console.log('yo')
     }
 
     if (global_form_cols>12) {

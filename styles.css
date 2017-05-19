@@ -125,6 +125,7 @@ button.btn-formmod:hover {
 
   table.form.scroll {
     table-layout: fixed;
+    margin-bottom:7px;
   }
 
   table.form.scroll td {
