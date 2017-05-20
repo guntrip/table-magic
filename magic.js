@@ -1,4 +1,4 @@
-var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true, debug=false;
+var tab = "csv", header_alignment=[], array_storage="", form_rows=0, form_cols=0, prettify_md=true, debug=false, global_form_cols=0, delete_mode=false;
 
 var example_csv='Feature, Description, Example\n'+
                 'Renders markdown, Uses showdown library to render contents of table cells, **Just** *like* ``this``\n'+
@@ -18,8 +18,33 @@ $(window).load(function() {
   if (tab!=="md") { $('#md-options').hide(); }
   if (tab!="csv") { $('#csv-options').hide(); }
   if (tab!="sql") { $('#sql-info').hide(); }
+  if (tab!="form") { $('.form-tools').hide(); }
 
   // bind form buttons
+  $("body").delegate("#new-row", "click", function() {
+    form_add_row();
+   });
+
+   $("body").delegate("#new-column", "click", function() {
+     form_add_col();
+    });
+
+    $("body").delegate("#toggle-delete", "click", function() {
+
+      if (delete_mode) {
+        delete_mode=false;
+        $('.btn-formmod.show').removeClass('show');
+        $('#toggle-delete').removeClass('active');
+        $('#toggle-delete').html("<span class=\"octicon octicon-trashcan\"></span> Enable deletion");
+      } else {
+        delete_mode=true;
+        $('.btn-formmod').addClass('show');
+        $('#toggle-delete').addClass('active');
+        $('#toggle-delete').html("<span class=\"octicon octicon-trashcan\"></span> Disable deletion");
+      }
+
+     });
+
   $("body").delegate(".button-row-duplicate", "click", function() {
     if (typeof $(this).closest("tr")[0].rowIndex === 'number') {
       form_duplicate_row($(this).closest("tr")[0].rowIndex);
@@ -60,7 +85,37 @@ $(window).load(function() {
 
     });
 
+    $( window ).resize(function() {
+      if (tab==="form") {
+        form_resize();
+      }
+    });
 
+    // Table-builder
+
+      // Opening square
+      $("body").delegate("#tablebuilder-start", "mousedown", function() {
+        tablebuilder_create();
+      });
+
+      // When other squares are entered
+      $("body").delegate(".table-builder>div>div", "mouseenter mouseup", function() {
+        if ($(this).attr('id')!=='start') {
+          if (event.buttons===0) {
+            var x = parseInt($(this).attr('x')), y = parseInt($(this).attr('y'));
+            tablebuilder_clear();
+            tablebuilder_build(x,y);
+          } else {
+            var x = parseInt($(this).attr('x'))+1, y = parseInt($(this).attr('y'))+1;
+            tablebuilder_draw(x,y);
+          }
+        }
+      });
+
+      // Mouse up on a square
+      $("body").delegate(".table-builder", "mouseout", function() {
+        tablebuilder_clear();
+      });
 
 });
 
@@ -151,11 +206,18 @@ function changeTab(newTab) {
         if (newTab==='sql') $('#sql-info').show();
       }
 
+      if (tab==='form') {
+        $('.form-tools').hide();
+        $('#viewport').removeAttr('style');
+        $('table.form').removeClass('scroll');
+      }
+
 
       $('.options').hide();
       if (newTab==="md") { $('#md-options').show(); }
       if (newTab==="csv") { $('#csv-options').show(); }
       if (newTab==="sql") { $('#sql-info').show(); }
+      if (newTab==="form") { $('.form-tools').show(); form_resize(); }
 
       // Update variables
       tab = newTab;
@@ -919,26 +981,30 @@ function array2form(array) {
 
   form_cols=0;
 
-  var html = "<div class=\"buttonbar\">"+
+  /*var html = "<div class=\"buttonbar\">"+
              "<button class=\"btn btn-sm\" type=\"button\" onclick=\"form_add_row();\">Add row</button> "+
              "<button class=\"btn btn-sm\" type=\"button\" onclick=\"form_add_col();\">Add column</button>"+
-             "</div>";
+             "</div>";*/
 
-  html += "<table class=form><thead>";
+
+
+  var html = "<table class=form><thead>", button_class="";
+
+  if (delete_mode) button_class = " show";
 
   for (var r = 0; r < array.length; r++) {
 
       var row = array[r];
 
       if (r===0) { fontweight="bold;" } else { fontweight="normal"; }
-      html += "<tr style=\"font-weight:"+fontweight+"\">";
+      html += "<tr style=\"font-weight:"+fontweight+"\" class=\"row"+r+"\">";
 
       for (var c = 0; c < row.length; c++) {
 
         var item = row[c];
         item = item.replace(/"/g, '&quot;'); // replace "s
 
-        html += "<td>";
+        html += "<td class=\"col"+c+"\">";
         html += "<input id='form-"+r+"-"+c+"' value=\"";
         html += item;
         html += "\"";
@@ -948,9 +1014,10 @@ function array2form(array) {
       }
 
       html += "<td class=\"button\">"+
-              "<button class=\"btn btn-sm button-row-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
-              "<button class=\"btn btn-sm btn-danger button-row-remove\" type=\"button\"><span class=\"octicon octicon-trashcan\"></span></button>"+
-              "</td>";
+              //"<button class=\"btn btn-sm button-row-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
+              "<button class=\"btn-formmod button-row-remove"+button_class+"\" type=\"button\" title=\"Delete row\""+
+              " onmouseenter=\"del_row_hl("+r+", true);\"  onmouseleave=\"del_row_hl("+r+", false);\">"+
+              "<span class=\"octicon octicon-trashcan\"></span></button></td>";
 
 
 
@@ -973,8 +1040,10 @@ function array2form(array) {
 
       for (var c = 0; c < form_cols; c++) {
         html += "<td class=\"button\" align=\"center\">"+
-                "<button class=\"btn btn-sm button-col-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
-                "<button class=\"btn btn-sm btn-danger button-col-remove\" type=\"button\"><span class=\"octicon octicon-trashcan\"></span></button>"+
+                //"<button class=\"btn btn-sm button-col-duplicate\" type=\"button\"><span class=\"octicon octicon-repo-forked\"></span></button> "+
+                "<button class=\"btn-formmod button-col-remove"+button_class+"\" type=\"button\" title=\"Delete column\""+
+                "onmouseenter=\"del_col_hl("+c+", true);\"  onmouseleave=\"del_col_hl("+c+", false);\""+
+                "><span class=\"octicon octicon-trashcan\"></span></button>"+
                 "</td>";
       }
 
@@ -988,6 +1057,8 @@ function array2form(array) {
                                   "<span class=\"octicon octicon-tools\"></span>"+
                                   "You can use the tools above to create your table or enter some markdown or CSV on the other tabs.</div>"
                         }
+
+  global_form_cols = form_cols;
 
   return html;
 
@@ -1004,8 +1075,21 @@ function md2html(md) {
 
 // form modification
 function form_redraw(array) {
+
+  // Save scroll position:
+  var scrolled = $('#viewport').scrollLeft();
+
+  // Redraw the form!
   var html = array2form(array);
   $('.preview').html(html);
+
+  // Resize cells
+  form_resize();
+
+  // Restore scroll position, we first scroll one pixel to force
+  // Chrome on OSX to show the scrollbars.
+  $('#viewport').scrollLeft(1).scrollLeft(scrolled);
+
 }
 
 function form_add_row() {
@@ -1113,6 +1197,158 @@ function form_remove_col(col) {
 
   // Redraw
   form_redraw(array);
+
+}
+
+function del_row_hl(row, active) {
+  if (active) {
+    $('.row'+row).addClass('delHighlight');
+  } else {
+    $('.row'+row).removeClass('delHighlight');
+  }
+}
+
+function del_col_hl(col, active) {
+  if (active) {
+    $('.col'+col).addClass('delHighlight');
+  } else {
+    $('.col'+col).removeClass('delHighlight');
+  }
+}
+
+function form_resize() {
+
+  // <640px, scaling until 6 fields
+  // 640>1024, scaling until 11 fields
+  // >1024, centered+scaling until 6, 100% and scaling until 12
+
+  var window_size = $( window ).width();
+  $('#viewport').removeAttr('style');
+  $('table.form').removeClass('scroll');
+
+  if (window_size>1024) {
+
+    if ((global_form_cols>5)&&(global_form_cols<13)) {
+      $('#viewport').css('width', '100%');
+    }
+
+    if (global_form_cols>12) {
+      $('#viewport').css('width', '100%');
+      $('#viewport').css('overflow-x', 'scroll');
+      $('table.form').addClass('scroll');
+    }
+
+  }
+
+  if ( (window_size>640) && (window_size<1025) ) {
+
+    if (global_form_cols>8) {
+      $('#viewport').css('overflow-x', 'scroll');
+      $('table.form').addClass('scroll');
+    }
+
+  }
+
+  if (window_size<=640) {
+    if (global_form_cols>5) {
+      $('#viewport').css('overflow-x', 'scroll');
+      $('table.form').addClass('scroll');
+    }
+  }
+
+}
+
+function tablebuilder_create() {
+
+  // Gather position of #tablebuilder-start
+  var pos = $('#tablebuilder-start').offset();
+
+  // Create a table builder
+  $( "<div></div>" )
+  .addClass( "table-button" )
+  .html ("<div class=\"table-builder\"></div>")
+  .css('left', (pos.left-10)) // negate margin :)
+  .css('top', (pos.top-10))
+  .appendTo( "body" );
+
+  tablebuilder_draw(2, 2);
+
+}
+
+function tablebuilder_draw(cols, rows) {
+
+  // Draw a table
+  var builderHtml = "<div class=\"first\">";
+
+  for (var y = 0; y < rows; y++) {
+
+    for (var x = 0; x < cols; x++) {
+
+      builderHtml += "<div x="+(x+1)+" y="+(y+1)+"";
+
+      if (x==0) builderHtml += " class=\"first\"";
+      if (x==(cols-1)) builderHtml += " class=\"last\"";
+
+      builderHtml += "></div>";
+
+    }
+
+    if (y<(rows-1)) {
+      builderHtml+="</div><div";
+      if ((y+1)==(rows-1)) builderHtml += " class=\"last\"";
+      builderHtml += ">";
+    }
+
+  }
+
+  builderHtml += "</div>";
+
+  $('.table-builder').html(builderHtml);
+
+}
+
+function tablebuilder_clear() {
+  $('.table-button').remove();
+}
+
+function tablebuilder_build(x,y) {
+
+  // Is there already data?
+  var array = form2array(), proceed=true;
+  if (array.length>0) {
+
+    var r = confirm("Do you want to create a new "+x+"x"+y+" table and replace this one?");
+    if (!r) proceed = false;
+
+  }
+
+  // Make a new empty table!
+  if (proceed) {
+
+    var table = [];
+
+    for (var by = 0; by < y; by++) {
+
+      var row = [];
+
+      for (var bx = 0; bx < x; bx++) {
+
+          row.push('');
+
+      }
+
+      table.push(row);
+
+    }
+
+    var output = array2form(table);
+
+    $('.preview').html(output);
+
+    global_form_cols=x;
+    form_resize();
+
+  }
 
 }
 

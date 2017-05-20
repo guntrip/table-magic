@@ -13,6 +13,7 @@ color:#fff;
 .masthead .title {
   font-weight:bold;
   font-size:1.3em;
+  padding-left:10px;
 }
 
 .masthead .sub {
@@ -76,6 +77,61 @@ table.form thead td.button,  table.form tbody td.button  {
   border: 1px solid #fff;
 }
 
+table.form td {
+  padding: 3px 4px;
+}
+
+table.form tr:nth-child(2n) input {
+    background-color: #f8f8f8;
+}
+
+table.form input {
+  border:none;
+  width:98%;
+}
+
+table.form input:focus {
+  outline:0;
+}
+
+button.btn-formmod {
+  display:none;
+  border:none;
+  background-color: #fff;
+  color:#615f5f;
+  border-radius: 2px;
+}
+
+button.btn-formmod.show {
+  display:block;
+}
+
+button.btn-formmod:hover {
+  color:#dd1010;
+}
+
+#toggle-delete.active {
+  color:#c42222;
+}
+
+.delHighlight, .delHighlight input {
+  background-color: #e4aeae !important;
+}
+
+/* form scaling */
+  table.form {
+    width:100%;
+  }
+
+  table.form.scroll {
+    table-layout: fixed;
+    margin-bottom:7px;
+  }
+
+  table.form.scroll td {
+    width:170px;
+  }
+
 input.header {
   font-weight:bold;
 }
@@ -84,4 +140,90 @@ input.header {
   margin-top:22px;
   text-align:center;
   color:#9d9d9d;
+}
+
+.form-tools {
+  overflow:hidden;
+  margin-top:-10px;
+  margin-bottom:10px;
+}
+
+.form-tools .form-button {
+  float:left;
+  waidth:20px;
+  height:20px;
+  margin:5px;
+  margin-right:12px;
+  padding-top:2px;
+  color:#878787;
+  border-radius: 2px;
+  text-align: center;
+  cursor:pointer;
+  user-select: none;
+}
+
+.form-tools .form-button:hover {
+  color:#000;
+}
+
+.form-tools .form-button.tablePos {
+  margin-top:-10px;
+}
+
+.table-button {
+  position:absolute;
+  z-index: 1;
+}
+
+.table-builder {
+  display:table;
+  padding:10px 40px 40px 10px;
+}
+
+.table-builder div {
+  display:table-row;
+}
+
+.table-builder div div {
+  display:table-cell;
+  height:40px;
+  width:40px;
+  border-bottom:2px solid #BE3B77;
+  border-right:2px solid #BE3B77;
+  background-color: #ead7e0;
+}
+
+.table-builder { cursor: pointer; }
+
+.table-builder div.last div, .table-builder div div.last {
+  border-bottom:2px solid #ccc;
+  border-right:2px solid #ccc;
+  background-color: #fff;
+}
+
+/* stop the top and left borders over-running.. */
+.table-builder div.first div { border-top:2px solid #BE3B77; }
+.table-builder div div.first { border-left:2px solid #BE3B77; }
+.table-builder div.first div.last { border-top:2px solid #ccc; }
+.table-builder div.last div.first { border-left:2px solid #ccc; }
+
+/* let's get responsive.. */
+@media all and (max-width: 1024px) {
+  .container {
+    width:100%;
+    padding:0px 5px;
+  }
+}
+@media all and (max-width: 640px) {
+  .tabnav-tab {
+    padding:3px 6px;
+    font-size:0.9em;
+  }
+  .masthead {
+    padding-top:0.5rem;
+    padding-bottom:0.5rem;
+  }
+  .masthead .title {
+    padding-left:3px;
+  }
 }

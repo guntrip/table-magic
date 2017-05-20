@@ -13,7 +13,7 @@
 
 <div class="masthead">
   <div class="container">
-    <div class="title one-fourth column">table-magic</div>
+    <div class="title">table-magic</div>
   </div>
 </div>
 
@@ -30,7 +30,33 @@
     </nav>
   </div>
 
+  <div class="form-tools">
+
+    <div class="form-button" id="tablebuilder-start" title="Drag out a new table">
+      <span class="octicon octicon-plus"></span> New table
+    </div>
+
+    <div class="form-button" id="new-row" title="Add a row to the bottom">
+      <span class="octicon octicon-triangle-down"></span> Add  row
+    </div>
+
+    <div class="form-button" id="new-column" title="Add a column to the right">
+      <span class="octicon octicon-triangle-right"></span> Add column
+    </div>
+
+    <div class="form-button" id="toggle-delete" title="Toggle deletion of rows and columns">
+      <span class="octicon octicon-trashcan"></span> Enable deletion
+    </div>
+
+  </div>
+
+</div>
+<div class="container" id="viewport">
+
   <div id="display"></div>
+
+</div>
+<div class="container">
 
   <div id="csv-options" class="options">
     <p>
@@ -56,12 +82,11 @@
     </p>
   </div>
 
-
 <div class="footer">
   built by <a href="http://www.github.com/stevecat/">stevecat</a> &bull;
   <a href="http://www.github.com/stevecat/table-magic">repo</a> &bull;
   <a href="http://www.github.com/stevecat/table-magic/issues">issues</a> &bull;
-  <a href="#" onclick="fill_example();"><strong>populate with example data</strong></a>
+  <a href="#" onclick="fill_example();">populate with example data</a>
 </div>
 
 </div>
