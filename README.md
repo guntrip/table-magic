@@ -11,6 +11,7 @@ Allows you to seamlessly switch between CSV, TSV, HTML, SQL, markdown and a litt
 | Preserves alignment                | Between all views                                       |
 | Markdown formatting                | Adds spaces, makes things more legible                  |
 | Form view                          | Create tables with buttons!                             |
+| INSERT                             | Generate an INSERT query to add data to a table         |
 
 I've made this as a little learning exercise to play with Primer, Atom, GitHub Desktop and GitHub itself.
 
