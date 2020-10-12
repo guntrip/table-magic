@@ -144,6 +144,7 @@ function changeTab(newTab) {
       if (tab==="html") { array = html2array(input); }
       if (tab==="sql") { array = sql2array(input); }
       if (tab==="insert") { array = insert2array(input); }
+      if (tab==="update") { array = update2array(input); }
       if (tab==="form") { array = form2array(); }
       if (tab==="preview") { array = array_storge; }
 
@@ -175,6 +176,11 @@ function changeTab(newTab) {
         new_layout=true;
       }
 
+      if (newTab==="update") {
+        output = array2update(array);
+        new_layout=true;
+      }
+
       if (newTab==="form") {
         output = array2form(array);
         new_layout=false;
@@ -200,13 +206,13 @@ function changeTab(newTab) {
       $('.tabnav-tab').removeClass('selected');
       $('#tab-'+newTab).addClass('selected');
 
-      if ((tab==='md')||tab==='sql'||tab==='insert') {
+      if ((tab==='md')||tab==='sql'||tab==='insert'||tab==='update') {
         $('textarea').removeClass('md');
         if (tab==='md') $('#md-options').hide();
         if (tab==='sql') $('#sql-info').hide();
       }
 
-      if ((newTab==='md')||newTab==='sql'||newTab==='insert') {
+      if ((newTab==='md')||newTab==='sql'||newTab==='insert'||newTab==='update') {
         $('textarea').addClass('md');
         if (newTab==='md') $('#md-options').show();
         if (newTab==='sql') $('#sql-info').show();
@@ -863,6 +869,81 @@ function array2insert(array) {
 
   return 'INSERT INTO [TABLENAME] '+ columns +' VALUES\n'+ insert;
 
+}
+
+function update2array(update) {
+  var array = [];array[0] = [];
+
+  // Remove last newline
+  update = update.substring(0, update.length-2)
+
+  // Split the update string
+  var rows = update.split(/\n/g);
+
+  for (var r = 0; r < rows.length; r++) {
+    array[r+1] = [];
+
+    var splits = rows[r].split('WHERE');
+    var ident = splits[1].replace(';', '').trim();
+
+    var start = splits[0].indexOf('SET');
+    var info = splits[0].substring(start + 4, splits[0].length).trim();
+
+    var data = (ident +', '+ info).replace(/', /g, "'#$#").split('#$#');
+
+    for (var c = 0; c < data.length; c++) {
+      var item = data[c];
+
+      // Remove escaping slashes for single and double quotes
+      item = item.replace(/\\'/g, "'");
+      item = item.replace(/\\"/g, '"');
+
+      item = item.split(' = ');
+
+      if (r === 0) {
+        array[0][c] = item[0];
+      }
+      array[r+1][c] = item[1].substring(1, item[1].length-1);
+    }
+  }
+
+  return array;
+}
+
+function array2update(array) {
+  var update = '';
+  var updates = '';
+
+  // first row is columns
+  var columns = array[0];
+
+  for (var r = 1; r < array.length; r++) {
+
+    var row = array[r];
+    updates = '';
+
+    for (var c = 0; c < row.length; c++) {
+
+      var item = row[c];
+
+      // Escape quotes
+      item = item.replace(/"/g, '\\"');
+      item = item.replace(/'/g, "\\'");
+
+      if (c == 0) {
+        var where = item;
+      } else {
+        updates += columns[c] + ' = \'' + item + '\'';
+        if (c < row.length - 1) { updates += ', '; }
+      }
+
+    }
+
+    update += 'UPDATE [TABLENAME] SET '+ updates +' WHERE '+ columns[0] +' = \''+ where +'\';\n';
+
+  }
+
+  return update;
 }
 
 function form2array() {
