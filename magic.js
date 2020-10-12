@@ -797,7 +797,7 @@ function insert2array(insert) {
 
   for (var r = 0; r < rows.length; r++) {
 
-    var cells = rows[r].split(', ');
+    var cells = rows[r].replace(/', /g, "'#$#").split('#$#');
 
     array[r+1] = [];
 
