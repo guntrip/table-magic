@@ -143,6 +143,8 @@ function changeTab(newTab) {
       if (tab==="csv") { array = csv2array(input); }
       if (tab==="html") { array = html2array(input); }
       if (tab==="sql") { array = sql2array(input); }
+      if (tab==="insert") { array = insert2array(input); }
+      if (tab==="update") { array = update2array(input); }
       if (tab==="form") { array = form2array(); }
       if (tab==="preview") { array = array_storge; }
 
@@ -166,6 +168,16 @@ function changeTab(newTab) {
 
       if (newTab==="sql") {
         output = array2sql(array);
+        new_layout=true;
+      }
+
+      if (newTab==="insert") {
+        output = array2insert(array);
+        new_layout=true;
+      }
+
+      if (newTab==="update") {
+        output = array2update(array);
         new_layout=true;
       }
 
@@ -194,13 +206,13 @@ function changeTab(newTab) {
       $('.tabnav-tab').removeClass('selected');
       $('#tab-'+newTab).addClass('selected');
 
-      if ((tab==='md')||tab==='sql') {
+      if ((tab==='md')||tab==='sql'||tab==='insert'||tab==='update') {
         $('textarea').removeClass('md');
         if (tab==='md') $('#md-options').hide();
         if (tab==='sql') $('#sql-info').hide();
       }
 
-      if ((newTab==='md')||newTab==='sql') {
+      if ((newTab==='md')||newTab==='sql'||newTab==='insert'||newTab==='update') {
         $('textarea').addClass('md');
         if (newTab==='md') $('#md-options').show();
         if (newTab==='sql') $('#sql-info').show();
@@ -753,6 +765,185 @@ function array2sqlDashes(cell_sizes, rowlength) {
 
   return line;
 
+}
+
+function insert2array(insert) {
+
+  var array = [];array[0] = [];
+
+  // Strip all newlines & double spaces
+  insert = insert.replace(/\n/g, '');
+  insert = insert.replace(/  /g, ' ');
+
+  // Split into header & body
+  var parts = insert.split(') VALUES ');
+  var n = parts[0].indexOf('(')+1;
+  var header = parts[0].substring(n, parts[0].length);
+
+  // Split header into columns
+  var columns = header.split(', ');
+
+  for (var c = 0; c < columns.length; c++) {
+
+    var column = columns[c];
+
+    // Remove escaping slashes for single and double quotes
+    column = column.replace(/\"/g, '"');
+    column = column.replace(/\'/g, "'");
+
+    array[0][c] = column;
+
+  }
+
+  // Strip opening & closing brackets + ending semi-colon
+  var body = parts[1].substring(1, parts[1].length-2);
+
+  // Split body into rows
+  var rows = body.split('), (');
+
+  for (var r = 0; r < rows.length; r++) {
+
+    var cells = rows[r].split(', ');
+
+    array[r+1] = [];
+
+    for (var c = 0; c < cells.length; c++) {
+
+      var cell = cells[c];
+
+      // Strip opening and closing single qoutes
+      cell = cell.substring(1, cell.length-1);
+
+      // Remove escaping slashes for single and double quotes
+      cell = cell.replace("\\'", "'");
+      cell = cell.replace('\\"', '"');
+
+      array[r+1][c] = cell;
+
+    }
+
+  }
+
+  return array;
+}
+
+function array2insert(array) {
+
+  var insert = '';
+
+  for (var r = 0; r < array.length; r++) {
+
+    var row = array[r];
+
+    insert += '  (';
+
+    for (var c = 0; c < row.length; c++) {
+
+      var item = row[c];
+
+      // Escape quotes
+      item = item.replace(/"/g, '\\"');
+      item = item.replace(/'/g, "\\'");
+
+      if (c>0) { insert += ', '; }
+      insert += "'"+ item +"'";
+
+    }
+
+    // Last row should end with a semi-colon instead of a comma
+    insert += (r===(array.length-1)) ? ');\n' : '),\n';
+
+    // First row are the columns
+    if (r===0) {
+      insert = insert.replace('  (', '(');
+      insert = insert.replace('(\'', '(');
+      insert = insert.replace('\')', ')');
+      insert = insert.replace(/', '/g, ', ');
+      insert = insert.replace('),\n', ')');
+
+      var columns = insert;
+      insert = '';
+    }
+
+  }
+
+  return 'INSERT INTO [TABLENAME] '+ columns +' VALUES\n'+ insert;
+
+}
+
+function update2array(update) {
+  var array = [];array[0] = [];
+
+  // Remove last newline
+  update = update.substring(0, update.length-2)
+
+  // Split the update string
+  var rows = update.split(/\n/g);
+
+  for (var r = 0; r < rows.length; r++) {
+    array[r+1] = [];
+
+    var splits = rows[r].split('WHERE');
+    var ident = splits[1].replace(';', '').trim();
+
+    var start = splits[0].indexOf('SET');
+    var info = splits[0].substring(start + 4, splits[0].length).trim();
+
+    var data = (ident +', '+ info).replace(/', /g, "'#$#").split('#$#');
+
+    for (var c = 0; c < data.length; c++) {
+      var item = data[c];
+
+      // Remove escaping slashes for single and double quotes
+      item = item.replace(/\\'/g, "'");
+      item = item.replace(/\\"/g, '"');
+
+      item = item.split(' = ');
+
+      if (r === 0) {
+        array[0][c] = item[0];
+      }
+      array[r+1][c] = item[1].substring(1, item[1].length-1);
+    }
+  }
+
+  return array;
+}
+
+function array2update(array) {
+  var update = '';
+  var updates = '';
+
+  // first row is columns
+  var columns = array[0];
+
+  for (var r = 1; r < array.length; r++) {
+
+    var row = array[r];
+    updates = '';
+
+    for (var c = 0; c < row.length; c++) {
+
+      var item = row[c];
+
+      // Escape quotes
+      item = item.replace(/"/g, '\\"');
+      item = item.replace(/'/g, "\\'");
+
+      if (c == 0) {
+        var where = item;
+      } else {
+        updates += columns[c] + ' = \'' + item + '\'';
+        if (c < row.length - 1) { updates += ', '; }
+      }
+
+    }
+
+    update += 'UPDATE [TABLENAME] SET '+ updates +' WHERE '+ columns[0] +' = \''+ where +'\';\n';
+
+  }
+
+  return update;
 }
 
 function form2array() {
