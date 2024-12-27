@@ -14,4 +14,4 @@ Allows you to seamlessly switch between CSV, TSV, HTML, SQL, markdown and a litt
 
 I've made this as a little learning exercise to play with Primer, Atom, GitHub Desktop and GitHub itself.
 
-I keep an up-to-date version of this on my GitHub Pages site: [**http://stevecat.github.io/table-magic/**](http://stevecat.github.io/table-magic/)
+I keep an up-to-date version of this on my GitHub Pages site: [**https://stevecat.net/table-magic/**](https://stevecat.net/table-magic/)
